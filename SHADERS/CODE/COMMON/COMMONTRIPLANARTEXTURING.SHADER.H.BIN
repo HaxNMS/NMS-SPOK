@@ -545,7 +545,7 @@ GetBlendedColour(
         {
             if( ( 1.0 - lfHeight1 ) * ( 1.0 - lfHeight5 ) > lfThreshold )
             {
-                int liIndex = int( floor( lTile1Vec4.x ) );
+                int liIndex = int( lTile1Vec4.x );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic5             += ( 1.0 - lfHeight1 ) * ( 1.0 - lfHeight5 ) *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -554,7 +554,7 @@ GetBlendedColour(
             }
             if( lfHeight1 * ( 1.0 - lfHeight5 ) > lfThreshold )
             {
-                int liIndex = int( floor( lTile1Vec4.y ) );
+                int liIndex = int( lTile1Vec4.y );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic5             += lfHeight1 * ( 1.0 - lfHeight5 )  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -567,7 +567,7 @@ GetBlendedColour(
         {
             if( ( 1.0 - lfHeight2 ) * lfHeight5 > lfThreshold )
             {
-                int liIndex = int( floor( lTile1Vec4.z ) );
+                int liIndex = int( lTile1Vec4.z );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic5             += ( 1.0 - lfHeight2 ) * lfHeight5  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -575,7 +575,7 @@ GetBlendedColour(
             }
             if( lfHeight2 * lfHeight5 > lfThreshold )
             {
-                int liIndex = int( floor( lTile1Vec4.w ) );
+                int liIndex = int( lTile1Vec4.w );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic5             += lfHeight2 * lfHeight5  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -592,7 +592,7 @@ GetBlendedColour(
         {
             if( ( 1.0 - lfHeight3 ) * ( 1.0 - lfHeight6 ) > lfThreshold )
             {
-                int liIndex = int( floor( lTile2Vec4.x ) );
+                int liIndex = int( lTile2Vec4.x );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic6             += ( 1.0 - lfHeight3 ) * ( 1.0 - lfHeight6 )  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -600,7 +600,7 @@ GetBlendedColour(
             }
             if( lfHeight3 * ( 1.0 - lfHeight6 ) > lfThreshold )
             {
-                int liIndex = int( floor( lTile2Vec4.y ) );
+                int liIndex = int( lTile2Vec4.y );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic6             += lfHeight3 * ( 1.0 - lfHeight6 )  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -613,7 +613,7 @@ GetBlendedColour(
         {
             if( ( 1.0 - lfHeight4 ) * lfHeight6 > lfThreshold )
             {
-                int liIndex = int( floor( lTile2Vec4.z ) );
+                int liIndex = int( lTile2Vec4.z );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic6             += ( 1.0 - lfHeight4 ) * lfHeight6  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -622,7 +622,7 @@ GetBlendedColour(
 #ifdef D_DEFER
             if( lfHeight4 * lfHeight6 > lfThreshold )
             {
-                int liIndex = int( floor( lTile2Vec4.w ) );
+                int liIndex = int( lTile2Vec4.w );
                 vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
                 vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
                 lfMetallic6             += lfHeight4 * lfHeight6  *  ( liIndex >= 20 ? 1.0 : 0.0 );
@@ -635,7 +635,7 @@ GetBlendedColour(
     lfMetallic = mix( lfMetallic5, lfMetallic6, lfHeight7 );
     return       mix( lColour5, lColour6, lfHeight7 );
 #else
-    int liIndex = int( floor( lTile1Vec4[ 0 ] ) );
+    int liIndex = int( lTile1Vec4[ 0 ] );
     vec3 lOriginalColourVec3 = ARRAY_LOOKUP_FS( lCustomUniforms, gaAverageColoursVec4, liIndex ).rgb;
     vec3 lRecolourVec3       = ARRAY_LOOKUP_FS( lCustomUniforms, gaTerrainColoursVec4, liIndex ).rgb;
     return GetTriPlanarColourArray(

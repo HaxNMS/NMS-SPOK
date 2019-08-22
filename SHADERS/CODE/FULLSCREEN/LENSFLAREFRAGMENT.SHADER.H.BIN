@@ -188,8 +188,7 @@ FRAGMENT_MAIN_COLOUR_SRT
 
     }
 
-    FRAGMENT_COLOUR = vec4( result+(anamorph*vec3(0.1,0.0,1.0)*  lUniforms.mpCustomPerMesh->gThresholdParamsVec4.z), 1.0 );
-
+    FRAGMENT_COLOUR = vec4( ( result + anamorph * vec3( 0.1, 0.0, 1.0 ) )*  lUniforms.mpCustomPerMesh->gThresholdParamsVec4.z, 1.0 );
 }
 
 
