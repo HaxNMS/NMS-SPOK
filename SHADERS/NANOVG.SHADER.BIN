@@ -34,21 +34,21 @@ context [ DX12 ] NANOVGDX12
     ZWriteEnable = false;
 }
 
-//context NANOVGPC
-//{
-//	VertexShader = compile GLSL VS_NANOVG_PC;
-//	PixelShader  = compile  GLSL FS_NANOVG_PC;	
-//	ZWriteEnable = false;
-//}
+context [ PC ] NANOVGVK
+{
+	VertexShader = compile GLSL VS_NANOVG_VULKAN;
+	PixelShader  = compile  GLSL FS_NANOVG_VULKAN;	
+	ZWriteEnable = false;
+}
 
 
-// [[VS_NANOVG_PC]]
+[[VS_NANOVG_VULKAN]]
 // =================================================================================================
-// #include "PC/NanoVgVertex.shader.h"
+#include "VULKAN/NanoVgVertex.shader.h"
 
-// [[FS_NANOVG_PC]]
+[[FS_NANOVG_VULKAN]]
 // =================================================================================================
-// #include "PC/NanoVgFragment.shader.h"
+#include "VULKAN/NanoVgFragment.shader.h"
 
 [[VS_NANOVG_ORBIS]]
 // =================================================================================================

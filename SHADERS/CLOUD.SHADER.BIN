@@ -119,6 +119,7 @@ float4 gCloudHeightGradient2;
 float4 gCloudHeightGradient3;
 float4 gCoverageParamsVec4;
 float4 gLightingParamsVec4;
+float4 gLightConeParamsVec4;
 float4 gLightScatteringParamsVec4;
 float4 gAnimationParamsVec4;
 float4 gModelingBaseParamsVec4;

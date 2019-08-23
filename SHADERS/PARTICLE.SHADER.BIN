@@ -137,12 +137,18 @@ context TRANSLUCENT_ADDITIVE
 
 context HEAVYAIR_SOFT
 {
-	VertexShader = compile GLSL VS_TRANSLUCENT;	
+	VertexShader = compile GLSL VS_HEAVYAIR_SOFT;
 	PixelShader = compile GLSL FS_HEAVYAIR_SOFT;
 }
 
 [[VS_TRANSLUCENT]]
 // =================================================================================================
+#include "ParticleVertex.shader.h"
+
+[[VS_HEAVYAIR_SOFT]]
+// =================================================================================================
+#define D_SOFT_PARTICLES
+#define D_HEAVYAIR
 #include "ParticleVertex.shader.h"
 
 [[FS_TRANSLUCENT]]

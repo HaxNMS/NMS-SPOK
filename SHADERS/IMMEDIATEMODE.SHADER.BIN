@@ -57,6 +57,22 @@ context [ DX12 ] IMTEXDX12
 	ZWriteEnable = false;
 }
 
+context [ PC ] IMVULKAN
+{
+	VertexShader = compile GLSL VS_IMMEDIATE3D_VULKAN;
+	PixelShader = compile GLSL FS_IMMEDIATE3D_VULKAN;
+	
+	ZWriteEnable = false;
+}
+
+context [ PC ] IMTEXVULKAN
+{
+	VertexShader = compile GLSL VS_IMMEDIATE3D_VULKAN;
+	PixelShader = compile  GLSL FS_IMMEDIATE3DTEX_VULKAN;
+	
+	ZWriteEnable = false;
+}
+
 float gfUserZ = 0.0;
 
 [[VS_IMMEDIATE3D_360]]
@@ -118,4 +134,18 @@ float gfUserZ = 0.0;
 [[FS_IMMEDIATE3DTEX_DX12]]
 // =================================================================================================
 #include "XBOXONE/Im3dTexFragment.shader.h"
+
+[[VS_IMMEDIATE3D_VULKAN]]
+// =================================================================================================
+#include "VULKAN/Im3dVertex.shader.h"
+
+[[FS_IMMEDIATE3D_VULKAN]]
+// =================================================================================================
+#include "VULKAN/Im3dFragment.shader.h"
+
+[[FS_IMMEDIATE3DTEX_VULKAN]]
+// =================================================================================================
+#include "VULKAN/Im3dTexFragment.shader.h"
+
+
 

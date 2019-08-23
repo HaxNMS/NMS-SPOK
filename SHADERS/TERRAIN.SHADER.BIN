@@ -350,6 +350,30 @@ context LIT_DEFER_N_FACING
     PixelShader   = compile GLSL FS_LIT_DEFER_N_FACING;
 }
 
+context LIT_DEFER_STC_X_FACING
+{
+	VertexShader = compile GLSL VS_DEFER;
+	PixelShader = compile GLSL FS_LIT_DEFER_STC_X_FACING;
+}
+
+context LIT_DEFER_STC_Y_FACING
+{
+	VertexShader = compile GLSL VS_DEFER;
+	PixelShader = compile GLSL FS_LIT_DEFER_STC_Y_FACING;
+}
+
+context LIT_DEFER_STC_Z_FACING
+{
+	VertexShader = compile GLSL VS_DEFER;
+	PixelShader = compile GLSL FS_LIT_DEFER_STC_Z_FACING;
+}
+
+context LIT_DEFER_STC_N_FACING
+{
+	VertexShader = compile GLSL VS_DEFER;
+	PixelShader = compile GLSL FS_LIT_DEFER_STC_N_FACING;
+}
+
 context LIT_DEFER_TESS
 {
     VertexShader  = compile GLSL VS_DEFER;
@@ -689,6 +713,38 @@ context LIT_DEFER_MESH
 #define D_DEFER
 #define D_ATTRIBUTES
 #define D_TERRAIN_N_FACING
+#include "Custom/TerrainFragment.shader.h"
+
+[[FS_LIT_DEFER_STC_X_FACING]]
+// =================================================================================================
+#define D_DEFER
+#define D_ATTRIBUTES
+#define D_TERRAIN_X_FACING
+#define D_STOCHASTIC_TERRAIN
+#include "Custom/TerrainFragment.shader.h"
+
+[[FS_LIT_DEFER_STC_Y_FACING]]
+// =================================================================================================
+#define D_DEFER
+#define D_ATTRIBUTES
+#define D_TERRAIN_Y_FACING
+#define D_STOCHASTIC_TERRAIN
+#include "Custom/TerrainFragment.shader.h"
+
+[[FS_LIT_DEFER_STC_Z_FACING]]
+// =================================================================================================
+#define D_DEFER
+#define D_ATTRIBUTES
+#define D_TERRAIN_Z_FACING
+#define D_STOCHASTIC_TERRAIN
+#include "Custom/TerrainFragment.shader.h"
+
+[[FS_LIT_DEFER_STC_N_FACING]]
+// =================================================================================================
+#define D_DEFER
+#define D_ATTRIBUTES
+#define D_TERRAIN_N_FACING
+#define D_STOCHASTIC_TERRAIN
 #include "Custom/TerrainFragment.shader.h"
 
 [[FS_LIT_DEFER_FEEDBACK]]

@@ -108,6 +108,12 @@ context COMBINE_TO_ALPHA
     ComputeShader	= compile GLSL FS_LENSFLARE_COMBINE_TO_ALPHA;
 }
 
+context COMBINE_VR
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_LENSFLARE_COMBINE_VR;
+    ComputeShader = compile GLSL FS_LENSFLARE_COMBINE_VR;
+}
 
 
 [[VS_FSQUAD]]
@@ -139,4 +145,11 @@ context COMBINE_TO_ALPHA
 #define D_LENSFLARE
 #define D_LENSFLARE_COMBINE
 #define D_LENSFLARE_COMBINE_TO_ALPHA
+#include "Fullscreen/LensFlareFragment.shader.h"
+
+[[FS_LENSFLARE_COMBINE_VR]]
+// =================================================================================================
+#define D_LENSFLARE
+#define D_LENSFLARE_COMBINE
+#define D_LENSFLARE_COMBINE_VR
 #include "Fullscreen/LensFlareFragment.shader.h"

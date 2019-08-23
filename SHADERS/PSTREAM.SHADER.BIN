@@ -44,7 +44,7 @@ context PSTREAM_STARS
 
 context PSTREAM_SYSTEM
 {
-  VertexShader = compile GLSL VS_PSTREAM_STARS;
+  VertexShader = compile GLSL VS_PSTREAM_SOLARSYSTEM;
   PixelShader = compile GLSL FS_PSTREAM_SOLARSYSTEM;
 
   ZWriteEnable = false;
@@ -82,6 +82,14 @@ float4 gSpaceSkyColour1Vec4              = {0.0, 0.0, 0.0, 0.0};
 #define D_VERTEX
 #define D_PSTREAM
 #define D_PSTREAM_STARS
+#include "PStream.shader.h"
+
+[[VS_PSTREAM_SOLARSYSTEM]]
+// =================================================================================================
+#define D_VERTEX
+#define D_PSTREAM
+#define D_PSTREAM_STARS
+#define D_PSTREAM_SOLARSYSTEM
 #include "PStream.shader.h"
 
 [[VS_PSTREAM_FIELD]]

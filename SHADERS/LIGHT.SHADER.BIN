@@ -209,10 +209,11 @@ context SCATTERING
 	ComputeShader = compile GLSL FS_SCATTERING;
 }
 
-context VOLUME
+context SCATTERING_NOGR
 {
-    VertexShader = compile GLSL VS_POS_SPHERE;
-    PixelShader  = compile GLSL FS_VOLUME;
+    VertexShader = compile GLSL VS_IMVERTDEPTH;
+    PixelShader = compile GLSL FS_SCATTERING_NOGR;
+    ComputeShader = compile GLSL FS_SCATTERING_NOGR;
 }
 
 [[VS_IMVERTEX]]
@@ -233,13 +234,6 @@ context VOLUME
 #define D_VERTEX
 #define D_VERTEX_LOGZ
 #define D_SPOTLIGHT
-#include "LightFragment.shader.h"
-
-[[VS_POS_SPHERE]]
-// =================================================================================================
-#define D_VERTEX
-#define D_VERTEX_LOGZ
-#define D_SPHERE
 #include "LightFragment.shader.h"
 
 [[VS_POS_NOLOGZ]]
@@ -314,9 +308,8 @@ context VOLUME
 #define D_SCATTERING
 #include "Fullscreen/LightShaftFragment.shader.h"
 
-[[FS_VOLUME]]
+[[FS_SCATTERING_NOGR]]
 // =================================================================================================
-#define D_RAYMARCH
-#define D_SPHERE
+#define D_SCATTERING
+#define D_NO_GODRAYS
 #include "Fullscreen/LightShaftFragment.shader.h"
-

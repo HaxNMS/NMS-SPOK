@@ -80,20 +80,22 @@ sampler gBlurMask = sampler_state
     TexUnit = 12;
 };
 
-
-float4 gColourLUTParamsVec4 = { 0.0, 0.0, 0.0, 0.0 };
-float4 gColourLUTStrengthsVec4 ={ 0.0, 0.0, 0.0, 0.0 };
-
 // -----------------------------------------------------------------------------------
 // Uniforms
 // -----------------------------------------------------------------------------------
 
+float4 gColourLUTParamsVec4 = { 0.0, 0.0, 0.0, 0.0 };
+float4 gColourLUTStrengthsVec4 ={ 0.0, 0.0, 0.0, 0.0 };
 
 float4 gHDRParamsVec4
 	// a - Exposure (higher values make scene brighter)
 	// b - Brightpass threshold (intensity where blooming begins)
 	// c - BrightPass offset (smaller values produce stronger blooming) 
 = {2, 0.6, 0.06, 0};
+
+float4 gHDRParams2Vec4 = { 0, 0, 0, 0 };
+
+float4 gAcesCurveParams;
 
 float4 gBlurParamsVec4 = {0, 0, 0, 0};
 float4 gDoFParamsVec4;
@@ -111,6 +113,8 @@ float4 gSkyUpperParamsVec4;
 float4 gLightShaftColourBottomVec4;
 float4 gLightShaftColourTopVec4;
 
+float4 gSharpenStrength = { 0.0, 0.0, 0.0, 0.0 };
+
 // -----------------------------------------------------------------------------------
 // Contexts
 // -----------------------------------------------------------------------------------
@@ -120,6 +124,13 @@ context COPY
 	VertexShader = compile GLSL VS_FSQUAD;
 	PixelShader = compile GLSL FS_POSTPROCESS_COPY;
     ComputeShader = compile GLSL FS_POSTPROCESS_COPY;
+}
+
+context COPY_SRGB_TO_P3
+{
+	VertexShader = compile GLSL VS_FSQUAD;
+	PixelShader = compile GLSL FS_POSTPROCESS_COPY_sRGB_TO_P3;
+    ComputeShader = compile GLSL FS_POSTPROCESS_COPY_sRGB_TO_P3;
 }
 
 context COPY_ADD
@@ -279,24 +290,30 @@ context ADDITION_4
 
 context COMBINE
 {
-	VertexShader = compile GLSL VS_FSQUAD;
+	VertexShader = compile GLSL VS_FSQUAD_LUT;
 	PixelShader  = compile GLSL FS_POSTPROCESS_COMBINE;
+}
+
+context COMBINE_NO_LUM
+{
+    VertexShader = compile GLSL VS_FSQUAD_LUT;
+    PixelShader  = compile GLSL FS_POSTPROCESS_COMBINE_NO_LUM;
 }
 
 context COMBINEHDR
 {
-    VertexShader = compile GLSL VS_FSQUAD;
+    VertexShader = compile GLSL VS_ACES_FSQUAD;
     PixelShader = compile GLSL FS_POSTPROCESS_COMBINEHDR;
 }
 context COMBINE_AND_COPY_DEPTH
 {
-	VertexShader = compile GLSL VS_FSQUAD;
+	VertexShader = compile GLSL VS_FSQUAD_LUT;
 	PixelShader = compile GLSL FS_POSTPROCESS_COMBINE_AND_COPY_DEPTH;
 }
 
 context COMBINEHDR_AND_COPY_DEPTH
 {
-	VertexShader = compile GLSL VS_FSQUAD;
+	VertexShader = compile GLSL VS_ACES_FSQUAD;
 	PixelShader = compile GLSL FS_POSTPROCESS_COMBINEHDR_AND_COPY_DEPTH;
 }
 
@@ -308,7 +325,7 @@ context FXAA
 
 context GAMMACORRECT
 {
-	VertexShader = compile GLSL VS_FSQUAD;
+	VertexShader = compile GLSL VS_FSQUAD_LUT;
 	PixelShader  = compile GLSL FS_POSTPROCESS_GAMMACORRECT;
 }
 
@@ -389,6 +406,33 @@ context DEPTH_AWARE_V_REDONLY_GUASS
     ComputeShader = compile GLSL FS_POSTPROCESS_DEPTH_AWARE_V_REDONLY_GUASS;
 }
 
+context DEPTH_AWALT_H_GUASS
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_H_GUASS;
+    ComputeShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_H_GUASS;
+}
+
+context DEPTH_AWALT_V_GUASS
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_V_GUASS;
+    ComputeShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_V_GUASS;
+}
+
+context DEPTH_AWALT_H_REDONLY_GUASS
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_H_REDONLY_GUASS;
+    ComputeShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_H_REDONLY_GUASS;
+}
+
+context DEPTH_AWALT_V_REDONLY_GUASS
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_V_REDONLY_GUASS;
+    ComputeShader = compile GLSL FS_POSTPROCESS_DEPTH_AWALT_V_REDONLY_GUASS;
+}
 
 context DOWNSAMPLE
 {
@@ -511,6 +555,55 @@ context HBAO
 	ComputeShader = compile GLSL FS_HBAO;
 }
 
+context HBAO_LITE
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_HBAO_LITE;
+    ComputeShader = compile GLSL FS_HBAO_LITE;
+}
+
+context GTAO_GEN_LOW
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_GTAO_GEN_LOW;
+    ComputeShader = compile GLSL FS_GTAO_GEN_LOW;
+}
+
+context GTAO_GEN_MEDIUM
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_GTAO_GEN_MEDIUM;
+    ComputeShader = compile GLSL FS_GTAO_GEN_MEDIUM;
+}
+
+context GTAO_GEN_HIGH
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_GTAO_GEN_HIGH;
+    ComputeShader = compile GLSL FS_GTAO_GEN_HIGH;
+}
+
+context GTAO_TEMPORAL_FILTER
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_GTAO_TEMPORAL_FILTER;
+    ComputeShader = compile GLSL FS_GTAO_TEMPORAL_FILTER;
+}
+
+context GTAO_SPATIAL_H_DENOISE
+{
+    VertexShader = compile GLSL VS_FSQUAD_HT;
+    PixelShader = compile GLSL FS_GTAO_SPATIAL_DENOISE_H;
+    ComputeShader = compile GLSL FS_GTAO_SPATIAL_DENOISE_H;
+}
+
+context GTAO_SPATIAL_V_DENOISE
+{
+    VertexShader = compile GLSL VS_FSQUAD_HT;
+    PixelShader = compile GLSL FS_GTAO_SPATIAL_DENOISE_V;
+    ComputeShader = compile GLSL FS_GTAO_SPATIAL_DENOISE_V;
+}
+
 context CONVERTHDR
 {
     VertexShader = compile GLSL VS_FSQUAD;
@@ -518,10 +611,37 @@ context CONVERTHDR
 	ComputeShader = compile GLSL FS_CONVERTHDR;
 }
 
+context DEPTHMASK
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_DEPTHMASK;
+}
+
+context SHARPEN
+{
+    VertexShader  = compile GLSL VS_FSQUAD;
+    PixelShader   = compile GLSL FS_SHARPEN;
+    ComputeShader = compile GLSL FS_SHARPEN;
+}
+
+context DOWNSAMPLE_FLPY
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_DOWNSAMPLE_FLPY;
+    ComputeShader = compile GLSL FS_DOWNSAMPLE_FLPY;
+}
+
 [[VS_FSQUAD]]
 // =================================================================================================
 #define D_TEX_QUAD
 #include "ImmediateModeVertex.shader.h"
+
+[[VS_FSQUAD_LUT]]
+// =================================================================================================
+#define D_TEX_QUAD
+#define D_LUT
+#include "ImmediateModeVertex.shader.h"
+
 
 [[VS_FSQUAD_HT]]
 // =================================================================================================
@@ -535,9 +655,22 @@ context CONVERTHDR
 #define D_STAA_INTERPS
 #include "ImmediateModeVertex.shader.h"
 
+[[VS_ACES_FSQUAD]]
+// =================================================================================================
+#define D_TEX_QUAD
+#define D_ACES_PARAMS
+#define D_LUT
+#include "ImmediateModeVertex.shader.h"
+
 [[FS_POSTPROCESS_COPY]]
 // =================================================================================================
 #define D_POSTPROCESS_COPY
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_POSTPROCESS_COPY_sRGB_TO_P3]]
+// =================================================================================================
+#define D_POSTPROCESS_COPY
+#define D_CONVERT_SRGB_P3
 #include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_POSTPROCESS_COPY_ADD]]
@@ -691,12 +824,20 @@ context CONVERTHDR
 // =================================================================================================
 #define D_POSTPROCESS_COMBINE
 #define D_LUT
+#define D_OUTPUT_LUMINANCE
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_POSTPROCESS_COMBINE_NO_LUM]]
+// =================================================================================================
+#define D_POSTPROCESS_COMBINE
+#define D_LUT
 #include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_POSTPROCESS_COMBINEHDR]]
 // =================================================================================================
 #define D_POSTPROCESS_COMBINEHDR
 #define D_LUT
+#define D_ACES_PARAMS
 #include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_POSTPROCESS_COMBINE_AND_COPY_DEPTH]]
@@ -709,11 +850,13 @@ context CONVERTHDR
 // =================================================================================================
 #define D_POSTPROCESS_COMBINEHDR_AND_COPY_DEPTH
 #define D_LUT
+#define D_ACES_PARAMS
 #include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_POSTPROCESS_GAMMACORRECT]]
 // =================================================================================================
 #define D_POSTPROCESS_GAMMACORRECT
+#define D_LUT
 #include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_POSTPROCESS_DEGAMMA]]
@@ -780,6 +923,31 @@ context CONVERTHDR
 #define D_POSTPROCESS_DEPTH_AWARE_REDONLY
 #include "Fullscreen/PostProcessFragment.shader.h"
 
+[[FS_POSTPROCESS_DEPTH_AWALT_H_GUASS]]
+// =================================================================================================
+#define D_POSTPROCESS_DEPTH_AWARE_H_GUASS
+#define D_POSTPROCESS_DEPTH_AWARE_LITE
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_POSTPROCESS_DEPTH_AWALT_V_GUASS]]
+// =================================================================================================
+#define D_POSTPROCESS_DEPTH_AWARE_V_GUASS
+#define D_POSTPROCESS_DEPTH_AWARE_LITE
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_POSTPROCESS_DEPTH_AWALT_H_REDONLY_GUASS]]
+// =================================================================================================
+#define D_POSTPROCESS_DEPTH_AWARE_H_GUASS
+#define D_POSTPROCESS_DEPTH_AWARE_REDONLY
+#define D_POSTPROCESS_DEPTH_AWARE_LITE
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_POSTPROCESS_DEPTH_AWALT_V_REDONLY_GUASS]]
+// =================================================================================================
+#define D_POSTPROCESS_DEPTH_AWARE_V_GUASS
+#define D_POSTPROCESS_DEPTH_AWARE_REDONLY
+#define D_POSTPROCESS_DEPTH_AWARE_LITE
+#include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_POSTPROCESS_DOWNSAMPLE]]
 // =================================================================================================
@@ -951,7 +1119,62 @@ context CONVERTHDR
 // =================================================================================================
 #include "Fullscreen/HBAOFragment.shader.h"
 
+[[FS_HBAO_LITE]]
+// =================================================================================================
+#define D_HBAO_LITE
+#include "Fullscreen/HBAOFragment.shader.h"
+
+[[FS_GTAO_GEN_LOW]]
+// =================================================================================================
+#define D_GTAO_APPLY
+#define D_GTAO_LOW
+#include "Fullscreen/GTAOFragment.shader.h"
+
+[[FS_GTAO_GEN_MEDIUM]]
+// =================================================================================================
+#define D_GTAO_APPLY
+#define D_GTAO_MEDIUM
+#include "Fullscreen/GTAOFragment.shader.h"
+
+[[FS_GTAO_GEN_HIGH]]
+// =================================================================================================
+#define D_GTAO_APPLY
+#define D_GTAO_HIGH
+#include "Fullscreen/GTAOFragment.shader.h"
+
+[[FS_GTAO_TEMPORAL_FILTER]]
+// =================================================================================================
+#define D_GTAO_TEMPORAL_FILTER
+#include "Fullscreen/GTAOFragment.shader.h"
+
+[[FS_GTAO_SPATIAL_DENOISE_H]]
+// =================================================================================================
+#define D_GTAO_SPATIAL_DENOISE
+#define D_DENOISE_H
+#include "Fullscreen/GTAOFragment.shader.h"
+
+[[FS_GTAO_SPATIAL_DENOISE_V]]
+// =================================================================================================
+#define D_GTAO_SPATIAL_DENOISE
+#define D_DENOISE_V
+#include "Fullscreen/GTAOFragment.shader.h"
+
 [[FS_CONVERTHDR]]
 // =================================================================================================
 #define D_POSTPROCESS_CONVERTHDR
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_DEPTHMASK]]
+// =================================================================================================
+#define D_POSTPROCESS_DEPTHMASK
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_SHARPEN]]
+// =================================================================================================
+#define D_POSTPROCESS_SHARPEN
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_DOWNSAMPLE_FLPY]]
+// =================================================================================================
+#define D_POSTPROCESS_DOWNSAMPLE_FLPY
 #include "Fullscreen/PostProcessFragment.shader.h"

@@ -175,6 +175,7 @@ float4 gTerrainColour1Vec4;
 float4 gTerrainColour2Vec4;
 
 float4 gUserDataVec4                    = {0.0, 0.0, 0.0, 0.0};
+float4 gUITransparencyVec4              = {1.0, 0.0, 0.0, 0.0};
 
 // Dissolve
 float4 gDissolveDataVec4                = { 0.0, 0.0, 0.0, 0.0 };
@@ -193,10 +194,17 @@ context LIT_FORWARD
     PixelShader  = compile GLSL FS_LIT_FORWARD;
 }
 
-context LIT_FORWARD_UI
+// VR UI
+context UI_FORWARD
 {
-    VertexShader = compile GLSL VS_GENERAL_NS;
-    PixelShader  = compile GLSL FS_LIT_FORWARD_UI;
+    VertexShader = compile GLSL VS_UI_FORWARD;
+    PixelShader  = compile GLSL FS_UI_FORWARD;
+}
+
+context DEPTHONLY_FRWRD
+{
+    VertexShader = compile GLSL VS_DEPTHONLY_FRWRD;
+    PixelShader  = compile GLSL FS_DEPTHONLY_FRWRD;
 }
 
 context LIT_FORWARD_WITH_MASK
@@ -463,10 +471,30 @@ context PLANESPOT
 #define D_PLANE_SPOT
 #include "UberFragment.shader.h"
 
-[[FS_LIT_FORWARD_UI]]
+[[VS_UI_FORWARD]]
+// =================================================================================================
+#define D_NO_SHADOWS
+#define D_REMOVE_TAA_JITTER
+#define D_UI_OVERLAY
+#include "UberVertex.shader.h"
+
+[[FS_UI_FORWARD]]
 // =================================================================================================
 #define D_NO_SHADOWS
 #define D_NO_POSTPROCESS
 #define D_NO_GLOW
 #define D_UI_OVERLAY
+#include "UberFragment.shader.h"
+
+[[VS_DEPTHONLY_FRWRD]]
+// =================================================================================================
+#define D_NO_SHADOWS
+#define D_DEPTHONLY
+#include "UberVertex.shader.h"
+
+[[FS_DEPTHONLY_FRWRD]]
+// =================================================================================================
+#define D_DEPTHONLY
+#define D_NO_POSTPROCESS
+#define D_NO_SHADOWS
 #include "UberFragment.shader.h"
