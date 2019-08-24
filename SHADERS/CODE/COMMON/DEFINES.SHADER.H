@@ -33,7 +33,11 @@
     #extension GL_ARB_fragment_coord_conventions : enable
 	#extension GL_ARB_derivative_control : enable
 
-    #if defined(GL_SPIRV)
+    #if defined( GL_SPIRV ) && !defined( D_SPIRV )
+        #define D_SPIRV
+    #endif
+
+    #if defined(D_SPIRV)
         #extension GL_ARB_gpu_shader_int64 : enable
     #endif
 
@@ -416,17 +420,17 @@
 
 #if defined(D_COMPUTE) && defined(D_PLATFORM_ORBIS)
 
-    float dFdx( float var ) { float delta = var - LaneSwizzle( var, 0x1f, 0, 1 ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAA ) ? delta : -delta;  }
-    float dFdy( float var ) { float delta = var - LaneSwizzle( var, 0x1f, 0, 8 ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00 ) ? delta : -delta;  }
+    float dFdx( float var ) { float delta = var - LaneSwizzle( var, 0x1f, 0, 1 ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAAul ) ? delta : -delta;  }
+    float dFdy( float var ) { float delta = var - LaneSwizzle( var, 0x1f, 0, 8 ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00ul ) ? delta : -delta;  }
 
-    vec2 dFdx( vec2 var ) { vec2 delta = vec2( var.x - LaneSwizzle( var.x, 0x1f, 0, 1 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 1 ) ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAA ) ? delta : -delta;  }
-    vec2 dFdy( vec2 var ) { vec2 delta = vec2( var.x - LaneSwizzle( var.x, 0x1f, 0, 8 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 8 ) ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00 ) ? delta : -delta;  }
+    vec2 dFdx( vec2 var ) { vec2 delta = vec2( var.x - LaneSwizzle( var.x, 0x1f, 0, 1 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 1 ) ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAAul ) ? delta : -delta;  }
+    vec2 dFdy( vec2 var ) { vec2 delta = vec2( var.x - LaneSwizzle( var.x, 0x1f, 0, 8 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 8 ) ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00ul ) ? delta : -delta;  }
 
-    vec3 dFdx( vec3 var ) { vec3 delta = vec3( var.x - LaneSwizzle( var.x, 0x1f, 0, 1 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 1 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 1 ) ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAA ) ? delta : -delta;  }
-    vec3 dFdy( vec3 var ) { vec3 delta = vec3( var.x - LaneSwizzle( var.x, 0x1f, 0, 8 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 8 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 8 ) ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00 ) ? delta : -delta;  }
+    vec3 dFdx( vec3 var ) { vec3 delta = vec3( var.x - LaneSwizzle( var.x, 0x1f, 0, 1 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 1 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 1 ) ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAAul ) ? delta : -delta;  }
+    vec3 dFdy( vec3 var ) { vec3 delta = vec3( var.x - LaneSwizzle( var.x, 0x1f, 0, 8 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 8 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 8 ) ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00ul ) ? delta : -delta;  }
 
-    vec4 dFdx( vec4 var ) { vec4 delta = vec4( var.x - LaneSwizzle( var.x, 0x1f, 0, 1 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 1 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 1 ), var.z - LaneSwizzle( var.w, 0x1f, 0, 1 ) ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAA ) ? delta : -delta;  }
-    vec4 dFdy( vec4 var ) { vec4 delta = vec4( var.x - LaneSwizzle( var.x, 0x1f, 0, 8 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 8 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 8 ), var.z - LaneSwizzle( var.w, 0x1f, 0, 8 ) ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00 ) ? delta : -delta;  }
+    vec4 dFdx( vec4 var ) { vec4 delta = vec4( var.x - LaneSwizzle( var.x, 0x1f, 0, 1 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 1 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 1 ), var.z - LaneSwizzle( var.w, 0x1f, 0, 1 ) ); return __v_cndmask_b32(0, 1, 0xAAAAAAAAAAAAAAAAul ) ? delta : -delta;  }
+    vec4 dFdy( vec4 var ) { vec4 delta = vec4( var.x - LaneSwizzle( var.x, 0x1f, 0, 8 ), var.y - LaneSwizzle( var.y, 0x1f, 0, 8 ), var.z - LaneSwizzle( var.z, 0x1f, 0, 8 ), var.z - LaneSwizzle( var.w, 0x1f, 0, 8 ) ); return __v_cndmask_b32(0, 1, 0xFF00FF00FF00FF00ul ) ? delta : -delta;  }
 
 
     #define dFdxFine        dFdx
@@ -481,8 +485,8 @@
 // =================================================================================================
 
 #ifdef D_PLATFORM_OPENGL
-  #ifdef D_USE_UBO
-    #ifndef D_SAMPLERS_ARE_GLOBAL
+  #ifndef D_SAMPLERS_ARE_GLOBAL
+    #if defined( D_USE_UBO ) || defined( D_SPIRV )
       #define D_SAMPLERS_ARE_GLOBAL
     #endif
   #endif
@@ -502,7 +506,7 @@
 
   #ifdef D_SAMPLERS_ARE_GLOBAL
     #define BEGIN_SAMPLERBLOCK              };
-    #define END_SAMPLERBLOCK                
+    #define END_SAMPLERBLOCK                {
     #define BEGIN_IMAGEBLOCK
     #define END_IMAGEBLOCK
     #define SAMPLER_GETMAP( _S, _V )        _V
@@ -511,7 +515,7 @@
     #define BEGIN_SAMPLERBLOCK
     #define END_SAMPLERBLOCK                };
     #define BEGIN_IMAGEBLOCK                };
-    #define END_IMAGEBLOCK
+    #define END_IMAGEBLOCK                  {
     #define SAMPLER_GETMAP( _S, _V )        _S._V
     #define SAMPLER_GETLOCAL( _S, _V )      _S._V
   #endif
@@ -609,7 +613,7 @@
 
 #if defined(D_PLATFORM_DX12)
   	#define BEGIN_SAMPLERBLOCK  };
-  	#define END_SAMPLERBLOCK
+  	#define END_SAMPLERBLOCK    {
     #define BEGIN_IMAGEBLOCK           
     #define END_IMAGEBLOCK
     #define SAMPLER_GETMAP(_S, _V)			_V
@@ -832,9 +836,26 @@
 
 #elif defined( D_PLATFORM_OPENGL )
 
-    #define DECLARE_INPUT
+  #if defined( D_FRAGMENT )
+    #define DECLARE_INPUT                   in VertexBlock \
+                                            {
+    #define DECLARE_INPUT_END               } In;
     #define DECLARE_OUTPUT
-    #define DECLARE_END  
+    #define DECLARE_OUTPUT_END
+  #elif defined( D_VERTEX )
+    #define DECLARE_INPUT
+    #define DECLARE_INPUT_END
+    #define DECLARE_OUTPUT                  out VertexBlock \
+                                            {
+    #define DECLARE_OUTPUT_END              } Out;
+  #else
+    #define DECLARE_INPUT
+    #define DECLARE_INPUT_END
+    #define DECLARE_OUTPUT
+    #define DECLARE_OUTPUT_END
+    #define DECLARE_END                     #pragma error( DECLARE_END is obsolete. Use DECLARE_INPUT_END or DECLARE_OUTPUT_END )
+  #endif
+
 	#define DEREF_PTR( VAR )                VAR
 
   #ifdef D_USE_UBO
@@ -857,7 +878,11 @@
 
     #define DEREF_UNIFORM( VAR )            lUniforms.VAR
 
-    #define DECLARE_UNIFORM( TYPE, NAME )   uniform TYPE NAME;
+    #if defined(D_SPIRV)
+        #define DECLARE_UNIFORM( TYPE, NAME )   uniform NAME ## _BLK { TYPE NAME; };
+    #else
+        #define DECLARE_UNIFORM( TYPE, NAME )   uniform TYPE NAME;
+    #endif
 
   #endif
 
@@ -882,6 +907,16 @@
     #define PATCH_INPUT(      TYPE, NAME, REG )   patch in    TYPE NAME;
     #define INPUT(            TYPE, NAME, REG )   in          TYPE NAME [];
     #define OUTPUT(           TYPE, NAME, REG )   out         TYPE NAME;
+
+  #elif defined( D_FRAGMENT )
+  
+    #define INPUT(            TYPE, NAME, REG )               TYPE NAME;
+    #define OUTPUT(           TYPE, NAME, REG )   out         TYPE NAME;
+
+  #elif defined( D_VERTEX )
+  
+    #define INPUT(            TYPE, NAME, REG )   in          TYPE NAME;
+    #define OUTPUT(           TYPE, NAME, REG )               TYPE NAME;
 
   #else
 
@@ -960,8 +995,17 @@
 
   #else
 
-    #define IN(  VAR )                      VAR
-    #define OUT( VAR )                      VAR
+    #if defined( D_FRAGMENT )
+        #define IN(  VAR )                  In.VAR
+    #else
+        #define IN(  VAR )                  VAR
+    #endif
+  
+    #if defined( D_VERTEX )
+        #define OUT( VAR )                  Out.VAR
+    #else
+        #define OUT( VAR )                  VAR
+    #endif
 
     #if defined( D_FRAGMENT )
     #define IN_SCREEN_POSITION              gl_FragCoord
@@ -1207,7 +1251,7 @@
   #ifdef D_USE_UBO
     #define UNIFORM_DECL                        
   #else
-	#define UNIFORM_DECL 						uniform UniformBuffer lUniforms;
+	#define UNIFORM_DECL 						DECLARE_UNIFORM( UniformBuffer, lUniforms )
   #endif
 
     #define VERTEX_MAIN                         void main( void )

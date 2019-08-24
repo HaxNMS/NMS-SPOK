@@ -26,21 +26,20 @@ struct CustomPerMaterialUniforms
     vec4 gSpaceNebulaParamsVec4;
     vec4 gSpaceSkyColour1Vec4;
 
-#if defined(D_PLATFORM_DX12)
-};
+#if defined( D_FRAGMENT )
+    BEGIN_SAMPLERBLOCK
+    #if defined( D_PSTREAM_STARS ) && !defined( D_PSTREAM_SOLARSYSTEM )
+        SAMPLER2D( gDistortMap );
+    #elif defined( D_PSTREAM_FIELD )
+        SAMPLER2D( gFieldMap   );
+    #elif defined( D_PSTREAM_SOLARSYSTEM )
+        SAMPLER2D( gNoiseMap   );
+    #elif defined( D_CARDS )
+        SAMPLER2D( gPlasmaMap  );
+    #endif
+    END_SAMPLERBLOCK
 #endif
-    SAMPLER2D( gDistortMap );
-    SAMPLER2D( gFieldMap );
-
-    SAMPLER2D(  gNoiseMap );
-    SAMPLER2D( gPlasmaMap );
-
-#if !defined(D_PLATFORM_DX12)
-};
-#endif
-
-
-
+}; // CustomPerMaterialUniforms
 
 struct CustomPerMeshUniforms
 {
@@ -50,13 +49,12 @@ struct CustomPerMeshUniforms
 //
 // This is the SRT buffer that everything gets uploaded to (on PS4). PC just functions as normal. Declare it AFTER commonuniforms is included.
 //
-struct UniformBuffer
-{
+DECLARE_UNIFORMS
      DECLARE_PTR( PerFrameUniforms,             mpPerFrame )   /*: PER_MATERIAL*/ // sematics currently crash the compiler so the parser is hardcoded to look for names.
      DECLARE_PTR( CommonPerMeshUniforms,        mpCommonPerMesh )       /*: PER_MESH*/
      DECLARE_PTR( CustomPerMeshUniforms,        mpCustomPerMesh )       /*: PER_MESH*/
      DECLARE_PTR( CustomPerMaterialUniforms,    mpCustomPerMaterial )       /*: PER_MATERIAL*/
-};
+DECLARE_UNIFORMS_END
 
 
 //-----------------------------------------------------------------------------
@@ -221,10 +219,10 @@ DECLARE_INPUT
     INPUT(  vec3, mkCustom1Vec4,        TEXCOORD0 )
     INPUT(  vec4, mkCustom2Vec4,        TEXCOORD1 )
     INPUT(  vec4, mkCustom3Vec4,        TEXCOORD2 )
-DECLARE_END
+DECLARE_INPUT_END
 
 DECLARE_OUTPUT
-    OUTPUT_SCREEN_POSITION
+    // OUTPUT_SCREEN_POSITION
 
     OUTPUT( vec2, mUV,                  TEXCOORD0 )
     OUTPUT( vec4, mDepth_Field_Seed2,   TEXCOORD1 )
@@ -234,7 +232,7 @@ DECLARE_OUTPUT
     OUTPUT( vec4, mWorldPositionVec4,   TEXCOORD4 )
 #endif
 
-DECLARE_END
+DECLARE_OUTPUT_END
 
 
 
@@ -248,8 +246,8 @@ VERTEX_MAIN_SRT
     vec4  lScreenSpacePositionVec4;
     float lfLogDepth = 0.0;
 
-    mat4 lTranspViewMat4 = (lUniforms.mpPerFrame->gCameraMat4);
-   // mat4 lTranspViewMat4 = lUniforms.mpPerFrame->gViewMat4;
+    mat4 lTranspViewMat4 = UNIFORM( mpPerFrame, gCameraMat4 );
+   // mat4 lTranspViewMat4 = UNIFORM( mpPerFrame, gViewMat4 );
     vec3 lViewUp    = MAT4_GET_COLUMN( lTranspViewMat4, 1 );
     vec3 lViewRight = MAT4_GET_COLUMN( lTranspViewMat4, 0 );
 
@@ -270,28 +268,28 @@ VERTEX_MAIN_SRT
     
     float lfFieldValue = 0.0;
 #ifdef D_PSTREAM_FIELD
-	vec3 lvStableNoiseSamplePos = lUniforms.mpCustomPerMesh->gDoFParamsVec4.xyz + (lParticlePos * 0.1);
+	vec3 lvStableNoiseSamplePos = UNIFORM( mpCustomPerMesh, gDoFParamsVec4 ).xyz + (lParticlePos * 0.1);
     lfFieldValue = saturate( 0.5 + (iqNoise3(lvStableNoiseSamplePos) * 0.5) );
 #endif
 
 
     vec4 lvPositionToTransformVec4 = vec4(lParticlePos, 1.0);
 
-    vec4 lvWorldPositionVec4 = MUL( lUniforms.mpCommonPerMesh->gWorldMat4, lvPositionToTransformVec4 );
+    vec4 lvWorldPositionVec4 = MUL( UNIFORM( mpCommonPerMesh, gWorldMat4 ), lvPositionToTransformVec4 );
 
     // form view-facing billboard
     lvWorldPositionVec4.xyz += lViewRight * ( lCornerOffset.x * lParticleSize );
     lvWorldPositionVec4.xyz += lViewUp    * ( lCornerOffset.y * lParticleSize );
 
-    lScreenSpacePositionVec4 = MUL( lUniforms.mpCommonPerMesh->gViewProjectionMat4, lvWorldPositionVec4 );
+    lScreenSpacePositionVec4 = MUL( UNIFORM( mpPerFrame, gViewProjectionMat4 ), lvWorldPositionVec4 );
 
-    vec3 lCamPos   = MAT4_GET_COLUMN( lUniforms.mpPerFrame->gCameraMat4, 3 );
+    vec3 lCamPos   = MAT4_GET_COLUMN( UNIFORM( mpPerFrame, gCameraMat4 ), 3 );
     vec3 lToCamera = lvWorldPositionVec4.xyz - lCamPos;
     float lfDistToCamera = length( lToCamera );
     lToCamera = normalize( lToCamera );
 
     // gLightColourVec4 xy has the near fade and falloff
-    float lfDistFromCameraNormalised = DistanceFalloff( lUniforms.mpCommonPerMesh->gLightColourVec4, lfDistToCamera );
+    float lfDistFromCameraNormalised = DistanceFalloff( UNIFORM( mpCommonPerMesh, gLightColourVec4 ), lfDistToCamera );
     
     SCREEN_POSITION = lScreenSpacePositionVec4;
     
