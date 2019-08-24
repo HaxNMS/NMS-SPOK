@@ -1,0 +1,57 @@
+@echo off 
+setlocal
+
+REM glslc.bat NAME STAGE CONTEXT SOURCE [[FLAG]...]
+
+REM glslc.exe -std=450
+REM           -I "SHADERS/CODE"
+REM           -fauto-bind-uniforms
+REM           -fauto-map-locations
+REM           -DD_PLATFORM_PC
+REM           -DD_SAMPLERS_ARE_GLOBAL
+REM           -fshader-stage=vertex -DD_VERTEX
+REM           -DD_PSTREAM -DD_PSTREAM_STARS
+REM           -o - "SHADERS\CODE\PSTREAM.SHADER.H"
+REM > "BIN\PSTREAM_VERT_PSTREAM_STARS_0.SPV"
+
+set GLSLC=glslc.exe -std=450
+set GLSLC=%GLSLC% -I "SHADERS/CODE"
+set GLSLC=%GLSLC% -fauto-bind-uniforms
+set GLSLC=%GLSLC% -fauto-map-locations
+set GLSLC=%GLSLC% -DD_PLATFORM_PC
+set GLSLC=%GLSLC% -DD_SAMPLERS_ARE_GLOBAL
+
+set FRAG=-fshader-stage=frag -DD_FRAGMENT
+set VERT=-fshader-stage=vert -DD_VERTEX
+REM set DOMAIN=-fshader-stage=tesse  -DD_DOMAIN
+REM set HULL=-fshader-stage=tessc  -DD_HULL
+REM set GEOM=-fshader-stage=geom   -DD_GEOMETRY
+REM set COMP=-fshader-stage=comp   -DD_COMPUTE
+
+set SRC_PATH=SHADERS/CODE/HAX/PSTREAM.SHADER.H.BIN
+
+set CONTEXT=%~1
+set STAGE=%~2
+
+if "%STAGE%"=="FRAG" (
+    set STAGE=%FRAG%
+)
+
+REM %GLSLC% %FRAG% -DD_PSTREAM -DD_PSTREAM_STARS       -o "CODE/BIN/PC/PSTREAM_FRAG_PSTREAM_STARS_0.GLSL.TXT" "%SRC_PATH%"
+REM %GLSLC% %VERT% -DD_PSTREAM -DD_PSTREAM_STARS       -o "CODE/BIN/PC/PSTREAM_VERT_PSTREAM_STARS_0.GLSL.TXT" "%SRC_PATH%"
+%GLSLC% %FRAG% -DD_PSTREAM -DD_%CONTEXT%       -o "CODE/BIN/PC/PSTREAM_FRAG_%CONTEXT%_0.SPV" "%SRC_PATH%"
+%GLSLC% %VERT% -DD_PSTREAM -DD_%CONTEXT%       -o "CODE/BIN/PC/PSTREAM_VERT_%CONTEXT%_0.SPV" "%SRC_PATH%"
+
+REM %GLSLC% %FRAG% -DD_PSTREAM -DD_PSTREAM_SOLARSYSTEM -o "CODE/BIN/PC/PSTREAM_FRAG_PSTREAM_SYSTEM_0.SPV" "%SRC_PATH%"
+REM 
+REM %GLSLC% %FRAG% -DD_PSTREAM -DD_PSTREAM_FIELD       -o "CODE/BIN/PC/PSTREAM_FRAG_PSTREAM_FIELD_0.SPV" "%SRC_PATH%"
+REM %GLSLC% %VERT% -DD_PSTREAM -DD_PSTREAM_FIELD       -o "CODE/BIN/PC/PSTREAM_VERT_PSTREAM_FIELD_0.SPV" "%SRC_PATH%"
+REM 
+REM %GLSLC% %FRAG% -DD_CARDS                           -o "CODE/BIN/PC/PSTREAM_FRAG_PSTREAM_CARDS_0.SPV" "%SRC_PATH%"
+REM %GLSLC% %VERT% -DD_CARDS                           -o "CODE/BIN/PC/PSTREAM_VERT_PSTREAM_CARDS_0.SPV" "%SRC_PATH%"
+
+:compile_stage
+    exit /b
+
+:end
+    exit /b
