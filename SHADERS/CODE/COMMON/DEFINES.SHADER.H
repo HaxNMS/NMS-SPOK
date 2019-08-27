@@ -506,7 +506,8 @@
 
   #ifdef D_SAMPLERS_ARE_GLOBAL
     #define BEGIN_SAMPLERBLOCK              };
-    #define END_SAMPLERBLOCK                {
+    #define END_SAMPLERBLOCK                struct DummyEndSamplerBlock { \
+                                                float dummy;
     #define BEGIN_IMAGEBLOCK
     #define END_IMAGEBLOCK
     #define SAMPLER_GETMAP( _S, _V )        _V
@@ -515,7 +516,8 @@
     #define BEGIN_SAMPLERBLOCK
     #define END_SAMPLERBLOCK                };
     #define BEGIN_IMAGEBLOCK                };
-    #define END_IMAGEBLOCK                  {
+    #define END_IMAGEBLOCK                  struct DummyEndImageBlock { \
+                                                float dummy;
     #define SAMPLER_GETMAP( _S, _V )        _S._V
     #define SAMPLER_GETLOCAL( _S, _V )      _S._V
   #endif
@@ -570,11 +572,11 @@
   #ifdef D_SAMPLERS_ARE_GLOBAL
     #define SAMPLER2DPARAM_LOCAL( STRUCTURE, NAME )  NAME  
 
-    #define SAMPLER2D( NAME )               uniform sampler2D       NAME
-    #define SAMPLER2DARRAY( NAME )          uniform sampler2DArray  NAME
-    #define SAMPLER3D( NAME )               uniform sampler3D       NAME
-    #define SAMPLER2DSHADOW_SRT( NAME )     uniform sampler2DShadow NAME
-    #define ISAMPLER2D( TYPE, NAME )        uniform isampler2D       NAME
+    #define SAMPLER2D( NAME )               layout( set=1 ) uniform sampler2D       NAME
+    #define SAMPLER2DARRAY( NAME )          layout( set=1 ) uniform sampler2DArray  NAME
+    #define SAMPLER3D( NAME )               layout( set=1 ) uniform sampler3D       NAME
+    #define SAMPLER2DSHADOW_SRT( NAME )     layout( set=1 ) uniform sampler2DShadow NAME
+    #define ISAMPLER2D( TYPE, NAME )        layout( set=1 ) uniform isampler2D       NAME
 
     #else
     #define SAMPLER2DPARAM_LOCAL( STRUCTURE, NAME )  STRUCTURE.NAME  
@@ -613,7 +615,8 @@
 
 #if defined(D_PLATFORM_DX12)
   	#define BEGIN_SAMPLERBLOCK  };
-  	#define END_SAMPLERBLOCK    {
+  	#define END_SAMPLERBLOCK                struct DummyEndSamplerBlock { \
+                                                float dummy;
     #define BEGIN_IMAGEBLOCK           
     #define END_IMAGEBLOCK
     #define SAMPLER_GETMAP(_S, _V)			_V
@@ -853,8 +856,8 @@
     #define DECLARE_INPUT_END
     #define DECLARE_OUTPUT
     #define DECLARE_OUTPUT_END
-    #define DECLARE_END                     #pragma error( DECLARE_END is obsolete. Use DECLARE_INPUT_END or DECLARE_OUTPUT_END )
   #endif
+    //#define DECLARE_END                   // DECLARE_END is obsolete. Use DECLARE_INPUT_END or DECLARE_OUTPUT_END
 
 	#define DEREF_PTR( VAR )                VAR
 

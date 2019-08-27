@@ -84,7 +84,7 @@ DECLARE_INPUT
     INPUT(  vec3, mkCustom1Vec4,        TEXCOORD0 )
     INPUT(  vec4, mkCustom2Vec4,        TEXCOORD1 )
     INPUT(  vec4, mkCustom3Vec4,        TEXCOORD2 )
-DECLARE_END
+DECLARE_INPUT_END
 
 DECLARE_OUTPUT
     OUTPUT_SCREEN_POSITION
@@ -93,12 +93,12 @@ DECLARE_OUTPUT
     OUTPUT( vec4, mDepth_Field_Seed2,   TEXCOORD1 )
     OUTPUT( vec4, mColour,              TEXCOORD2 )
     OUTPUT( vec3, mPlasmaChoice,        TEXCOORD3 )
-DECLARE_END
+DECLARE_OUTPUT_END
 
 //-----------------------------------------------------------------------------
 VERTEX_MAIN_SRT
 {
-    vec3 lViewAt        = MAT4_GET_COLUMN( lUniforms.mpPerFrame->gCameraMat4, 2 );
+    vec3 lViewAt        = MAT4_GET_COLUMN( UNIFORM( mpPerFrame, gCameraMat4 ), 2 );
 
     float lParticleSize = IN(mkCustom1Vec4).x;
     vec2 lCornerOffset  = IN(mkfParticleCornerId) - 0.5;
@@ -115,13 +115,13 @@ VERTEX_MAIN_SRT
 
     vec4 lvPositionToTransformVec4 = vec4( lCardEdge, 1.0 );
 
-    vec4 lvWorldPositionVec4 = MUL( lUniforms.mpCommonPerMesh->gWorldMat4, lvPositionToTransformVec4 );
-    vec4 lScreenSpacePositionVec4 = MUL( lUniforms.mpCommonPerMesh->gViewProjectionMat4, lvWorldPositionVec4);
+    vec4 lvWorldPositionVec4 = MUL( UNIFORM( mpCommonPerMesh, gWorldMat4 ), lvPositionToTransformVec4 );
+    vec4 lScreenSpacePositionVec4 = MUL( UNIFORM( mpPerFrame, gViewProjectionMat4 ), lvWorldPositionVec4);
 
 
-    vec3 lCamPos         = MAT4_GET_COLUMN( lUniforms.mpPerFrame->gCameraMat4, 3 );
+    vec3 lCamPos         = MAT4_GET_COLUMN( UNIFORM( mpPerFrame, gCameraMat4 ), 3 );
     float lfDistToCamera = distance(lCamPos, lvWorldPositionVec4.xyz);
-    float lfDistFromCameraNormalised = DistanceFalloff( lUniforms.mpCommonPerMesh->gLightColourVec4, lfDistToCamera );
+    float lfDistFromCameraNormalised = DistanceFalloff( UNIFORM( mpCommonPerMesh, gLightColourVec4 ), lfDistToCamera );
 
 
     // we choose a fade value based on
@@ -168,7 +168,7 @@ DECLARE_INPUT
     INPUT( vec4, mDepth_Field_Seed2,  TEXCOORD1 )
     INPUT( vec4, mColour,             TEXCOORD2 )
     INPUT( vec3, mPlasmaChoice,       TEXCOORD3 )
-DECLARE_END
+DECLARE_INPUT_END
 
 FRAGMENT_MAIN_COLOUR_SRT
 {
@@ -192,7 +192,7 @@ FRAGMENT_MAIN_COLOUR_SRT
         vec2 lSampleUV              = IN(mUV) + vec2( lRandomUVOffset, lRandomUVOffset );
 
         // sample 3 different plasma images encoded in one rgb tex, mask out just one channel based on random input
-        float lPlasma               = dot( texture2D( SAMPLER_GETMAP( lUniforms.mpCustomPerMaterial, gPlasmaMap ), lSampleUV ).rgb, IN(mPlasmaChoice) );
+        float lPlasma               = dot( texture( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMaterial ), gPlasmaMap ), lSampleUV ).rgb, IN(mPlasmaChoice) );
 
         FRAGMENT_COLOUR             = vec4( lSubtraction, lSubtraction, lSubtraction, lPlasma * lFade * IN(mDepth_Field_Seed2.z) );
     }
@@ -351,7 +351,7 @@ VERTEX_MAIN_SRT
 #ifdef D_FRAGMENT
 
 DECLARE_INPUT
-    INPUT_SCREEN_POSITION
+    // INPUT_SCREEN_POSITION
 
     INPUT( vec2, mUV,                 TEXCOORD0 )
     INPUT( vec4, mDepth_Field_Seed2,  TEXCOORD1 )
@@ -360,8 +360,7 @@ DECLARE_INPUT
     INPUT( vec4, mBlends,             TEXCOORD3 )
     INPUT( vec4, mWorldPositionVec4,  TEXCOORD4 )
 #endif
-
-DECLARE_END
+DECLARE_INPUT_END
 
 
 #ifdef D_PSTREAM_STARS
@@ -420,14 +419,14 @@ FRAGMENT_MAIN_COLOUR_SRT
     if ( lfCoronaBlend_DistFromCam > 0.0 )
     {
         float lfTimeScale = 0.01 + (lvSeed.y * 0.01);
-        float lfTimeShift = lvSeed.x - (lUniforms.mpCustomPerMesh->gDoFParamsVec4.w * lfTimeScale);  // we borrow gDoFParamsVec4 for some scale/time params
+        float lfTimeShift = lvSeed.x - (UNIFORM( mpCustomPerMesh, gDoFParamsVec4 ).w * lfTimeScale);  // we borrow gDoFParamsVec4 for some scale/time params
 
         vec2 lfP2 = ( lvUV - 0.5 );
         float lfPolar = atan2(lfP2.y, lfP2.x) * 0.1591549430918; // 1 / (2 * Pi)
 
         float lfDistortV = (lfDistToCentreOfUV * 1.5) + (lfTimeShift * 0.4);
 
-        vec3 lWaveTex = texture2DLod( SAMPLER_GETMAP( lUniforms.mpCustomPerMaterial , gDistortMap ), vec2( (lfTimeScale + lfPolar - lfDistortV), 1.0 * lfDistortV), 0.0 ).rgb;
+        vec3 lWaveTex = texture2DLod( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMaterial ), gDistortMap ), vec2( (lfTimeScale + lfPolar - lfDistortV), 1.0 * lfDistortV), 0.0 ).rgb;
 
         float lfCoronalDistortion  = lWaveTex.r;
               lfCoronalDistortion += lWaveTex.g;
@@ -459,19 +458,19 @@ FRAGMENT_MAIN_COLOUR_SRT
 
 #ifdef D_PSTREAM_SOLARSYSTEM
     {
-        float lfRandom      = lUniforms.mpCustomPerMaterial->gSpaceCloudColourVec4.a * 100.0f;// + lUniforms.mpPerFrame->gfTime * 0.001;
-        float lfCloudScale1 = lUniforms.mpCustomPerMaterial->gSpaceNebulaColour3Vec4.a;
-        float lfCloudBoost  = lUniforms.mpCustomPerMaterial->gSpaceNebulaParamsVec4.a;
-        float lfCloudOffset = lUniforms.mpCustomPerMaterial->gSpaceSkyColour1Vec4.a;
+        float lfRandom      = UNIFORM( mpCustomPerMaterial, gSpaceCloudColourVec4   ).a * 100.0f;// + lUniforms.mpPerFrame->gfTime * 0.001;
+        float lfCloudScale1 = UNIFORM( mpCustomPerMaterial, gSpaceNebulaColour3Vec4 ).a;
+        float lfCloudBoost  = UNIFORM( mpCustomPerMaterial, gSpaceNebulaParamsVec4  ).a;
+        float lfCloudOffset = UNIFORM( mpCustomPerMaterial, gSpaceSkyColour1Vec4    ).a;
         float lfCloudNoise1 = 1.0 - clamp( FractBrownianMotion4( IN( mWorldPositionVec4 ).xyz * lfCloudScale1 + vec3( lfRandom, lfRandom, lfRandom ), SAMPLER2DPARAM_SRT( lUniforms.mpCustomPerMaterial,gNoiseMap ) ) * 4.0 * lfCloudBoost + lfCloudOffset, 0.0, 1.0 );
 
         float lfSpeed       = 0.15;
         float lfCloudSpeed  = 0.15;
-        float lfTimeFade1   = sin( lfSpeed      * 13.0 * lUniforms.mpPerFrame->gfTime + lvSeed.x * 11.0 );
-        float lfTimeFade2   = sin( lfSpeed      * 23.0 * lUniforms.mpPerFrame->gfTime + lvSeed.x * 13.0 );
-        float lfTimeFade3   = sin( lfSpeed      * 31.0 * lUniforms.mpPerFrame->gfTime + lvSeed.x * 31.0 );
-        float lfTimeFade4   = sin( lfCloudSpeed * 2.0  * lUniforms.mpPerFrame->gfTime + lfCloudNoise1 * 23.0 );
-        float lfTimeFade5   = sin( lfCloudSpeed * 5.0  * lUniforms.mpPerFrame->gfTime + lfCloudNoise1 * 47.0 );
+        float lfTimeFade1   = sin( lfSpeed      * 13.0 * UNIFORM( mpPerFrame, gfTime ) + lvSeed.x * 11.0 );
+        float lfTimeFade2   = sin( lfSpeed      * 23.0 * UNIFORM( mpPerFrame, gfTime ) + lvSeed.x * 13.0 );
+        float lfTimeFade3   = sin( lfSpeed      * 31.0 * UNIFORM( mpPerFrame, gfTime ) + lvSeed.x * 31.0 );
+        float lfTimeFade4   = sin( lfCloudSpeed * 2.0  * UNIFORM( mpPerFrame, gfTime ) + lfCloudNoise1 * 23.0 );
+        float lfTimeFade5   = sin( lfCloudSpeed * 5.0  * UNIFORM( mpPerFrame, gfTime ) + lfCloudNoise1 * 47.0 );
         lfTimeFade1         = lfTimeFade1 * lfTimeFade2 * lfTimeFade3 * lfTimeFade4;
         lfTimeFade1         = clamp( lfTimeFade1 * 0.5 + 0.5, 0.0, 1.0 );
 
@@ -511,7 +510,7 @@ FRAGMENT_MAIN_COLOUR_SRT
     float lfFieldRandom             = IN(mDepth_Field_Seed2).y;
     vec2  lvUV                      = IN(mUV);
 
-    float lfParticleDiffuse         = texture2D( SAMPLER_GETMAP( lUniforms.mpCustomPerMaterial, gFieldMap ), lvUV ).r;
+    float lfParticleDiffuse         = texture( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMaterial ), gFieldMap ), lvUV ).r;
     if (lfParticleDiffuse == 0.0)
     {
         discard;
