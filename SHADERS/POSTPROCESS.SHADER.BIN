@@ -617,6 +617,12 @@ context DEPTHMASK
     PixelShader = compile GLSL FS_DEPTHMASK;
 }
 
+context COPYTOLUM
+{
+    VertexShader = compile GLSL VS_FSQUAD;
+    PixelShader = compile GLSL FS_COPYTOLUM;
+}
+
 context SHARPEN
 {
     VertexShader  = compile GLSL VS_FSQUAD;
@@ -1167,6 +1173,11 @@ context DOWNSAMPLE_FLPY
 [[FS_DEPTHMASK]]
 // =================================================================================================
 #define D_POSTPROCESS_DEPTHMASK
+#include "Fullscreen/PostProcessFragment.shader.h"
+
+[[FS_COPYTOLUM]]
+// =================================================================================================
+#define D_POSTPROCESS_COPYTOLUM
 #include "Fullscreen/PostProcessFragment.shader.h"
 
 [[FS_SHARPEN]]
