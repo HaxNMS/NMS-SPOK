@@ -1,7 +1,24 @@
 @echo off
 setlocal
 
-set PATH=%PATH%;X:\Media\Games\No Mans Sky\Tools\google-shaderc\bin
-set HaxTools=X:\Media\Games\No Mans Sky\Tools\HaxTools
+set NMS_PATH=U:\SteamLibrary\steamapps\common\No Man's Sky
+set MOD_PATH=%NMS_PATH%\GAMEDATA\PCBANKS\MODS
 
-cmd /K "@echo Hax Shader Development Environment"
+set NMSTools=X:\Media\Games\No Mans Sky\Tools
+set HaxTools=%NMSTools%\HaxTools
+
+set MBINC_PATH=X:\Media\Games\No Mans Sky\Tools\MBINCompiler\Build\Release
+
+set PATH=%PATH%;%HaxTools%;%HaxTools%\bin
+set PATH=%PATH%;%NMSTools%\google-shaderc\bin
+set PATH=%PATH%;%MBINC_PATH%
+set PATH=%PATH%;%~dp0%\scripts
+
+doskey mbinc=MBINCompiler.exe $*
+
+if "%~1"=="/q" goto :End
+if "%~1"=="/Q" goto :End
+
+cmd /K "@title Hax Shader Development Environment"
+
+:End

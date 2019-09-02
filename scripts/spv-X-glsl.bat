@@ -1,17 +1,24 @@
 @echo off
-setlocal
 
-set BIN_PATH=.\BIN
-if not "%~1" == "" set BIN_PATH=%BIN_PATH%\%~1
+set ARG1=%~1
+call "%~dp0\common\to-upper.bat" ARG1
 
-for %%I in (%BIN_PATH%\*.SPV) do call :x-compile "%%I"
+set ENABLE_REFLECT=&rem unset
+if "%ARG1%"=="-R"        set ENABLE_REFLECT=1
+if "%ARG1%"=="--REFLECT" set ENABLE_REFLECT=1
+set ENABLE_REFLECT && shift
 
-goto end
+:Next
+    if "%~1"=="" goto :end
+    for %%I in (%~1) do call :Decompile "%%~I" || goto :End
+    shift & goto :Next
 
-:x-compile
-    spirv-cross "%~1" --reflect > "%~dpn1.JSON"
-    spirv-cross "%~1"           > "%~dpn1.GLSL"
+goto :End
+
+:Decompile
+    set ENABLE_REFLECT && spirv-cross "%~1" --reflect > "%~dpn1.JSON" || exit /b
+    spirv-cross "%~1"           > "%~dpn1.GLSL" || exit /b
     exit /b
     
-:end
+:End
     exit /b
