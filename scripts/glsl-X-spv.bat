@@ -1,5 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
+call "%~dp0\..\devenv.bat" --quiet || goto :Error
 
 goto :Main
 
@@ -44,8 +45,12 @@ goto :Main
     set "CONTEXT=%~5"   && set "CONTEXT"   1>nul 2>&1 || goto :Help
     set "FLAGSMASK=%~6" && set "FLAGSMASK" 1>nul 2>&1 || goto :Help
 
+    set SRC_DIR=%~dp1
+    set SRC_DIR=%SRC_DIR:~0,-1%
+
     set OPTIONS=-std=450 -fauto-bind-uniforms -fauto-map-locations
-    set INCLUDES=-I "%~dp0\..\SHADERS\CODE"
+    set INCLUDES=-I "%SRC_DIR%"
+    set INCLUDES=%INCLUDES% -I "%~dp0..\SHADERS\CODE"
     set DEFINES=-DD_PLATFORM_PC -DD_SPIRV
 
     set STAGE_VERT=-DD_VERTEX   -fshader-stage=vert
@@ -54,13 +59,13 @@ goto :Main
     set STAGE_DOMN=-DD_DOMAIN   -fshader-stage=tesse
     set STAGE_COMP=-DD_COMPUTE  -fshader-stage=comp
 
-    call :SetDefines %* || goto :End
+    call :SetDefines %* || goto :Error
 
     for %%I in (%STAGES%) do (
         call :SetStage %%I
         call set DST=%DST_DIR%\%SHADER%_!STAGE!_%CONTEXT%_%FLAGSMASK%.SPV
         echo]Compiling !DST!
-        glslc.exe %OPTIONS% !OSTAGE! %INCLUDES% !DSTAGE! %DEFINES% "%SRC%" -o "!DST!" || goto :End
+        glslc.exe %OPTIONS% !OSTAGE! %INCLUDES% !DSTAGE! %DEFINES% "%SRC%" -o "!DST!" || goto :Error
         echo]
     )
 
@@ -86,10 +91,8 @@ goto :Main
     set STAGE=%~1
     exit /b
 
-:EmitError
-    echo] >&2
-    echo]ERROR: %* >&2
-    exit /b 1
+:Error
+    pause
     
 :End
     exit /b

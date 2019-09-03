@@ -1,12 +1,14 @@
 @echo off
 setlocal
 
-call pak-dev.bat PAK || goto :end
+call "%~dp0\devenv.bat" --quiet || goto :End
 
-call scripts\install-pak.bat "%PAK%" || goto :end
+call pak-dev.bat PAK || goto :End
+call scripts\pak\install.bat "%PAK%" || goto :End
 
 "%NMS_PATH%\Binaries\NMS.exe"
 
-goto :end
+goto :End
 
-:end
+:End
+    exit /b
