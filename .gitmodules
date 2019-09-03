@@ -1,0 +1,3 @@
+[submodule "modules/HaxTools"]
+	path = modules/HaxTools
+	url = https://github.com/HaxNMS/HaxTools.git
