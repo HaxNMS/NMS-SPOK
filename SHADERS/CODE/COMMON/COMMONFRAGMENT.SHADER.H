@@ -141,7 +141,7 @@ vec4 GetSparseSampleMip(
     #ifdef D_DOMAIN
     return texture2DLod( lSparseMap, lCoords, 0 );
     #else
-    return texture2D( lSparseMap, lCoords );
+    return texture( lSparseMap, lCoords );
     //return textureGrad( lSparseMap, lCoords, dPdx, dPdy );
     #endif
 }

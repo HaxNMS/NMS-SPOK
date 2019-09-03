@@ -41,7 +41,7 @@
 DECLARE_INPUT
     INPUT(  vec4, mkLocalPositionVec4, POSITION0 )
     INPUT(  vec2, mkTexCoordsVec4,     TEXCOORD0 )
-DECLARE_END
+DECLARE_INPUT_END
 
 //-----------------------------------------------------------------------------
 ///
@@ -52,14 +52,14 @@ DECLARE_END
 //-----------------------------------------------------------------------------
 DECLARE_OUTPUT
 
-    OUTPUT_SCREEN_POSITION
+    // OUTPUT_SCREEN_POSITION
     OUTPUT( vec2, mTexCoordsVec2,     TEXCOORD0 )
 
 #ifdef D_TEX_QUAD_POS
     OUTPUT( vec4, mWorldPositionVec4, TEXCOORD4 )
 #endif
 
-DECLARE_END
+DECLARE_OUTPUT_END
       
 
 // Uses postcommon as most of the post process stuff uses im3d and the uniform buffers have to 
@@ -95,7 +95,7 @@ DECLARE_END
 ///
 //-----------------------------------------------------------------------------
 
-VERTEX_MAIN_SRT
+VERTEX_MAIN //VERTEX_MAIN_SRT
 {
     vec2 lTexCoordsVec2;
     vec4 lWorldPositionVec4 = vec4( 0.0, 0.0, 0.0, 0.0 );
@@ -110,7 +110,7 @@ VERTEX_MAIN_SRT
 #endif
 
 #if defined( D_SCREEN_POS_HALF_PIXEL ) && defined( D_PLATFORM_PC )
-    lWorldPositionVec4.xy -= (vec2(0.5, 0.5) * lUniforms.mpPerFrame->gFrameBufferSizeVec4.zw);
+    lWorldPositionVec4.xy -= (vec2(0.5, 0.5) * UNIFORM( mpPerFrame, gFrameBufferSizeVec4 ).zw);
 #endif
     SCREEN_POSITION = lWorldPositionVec4;
 }

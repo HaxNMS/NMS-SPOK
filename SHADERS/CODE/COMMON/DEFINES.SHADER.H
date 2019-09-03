@@ -333,77 +333,79 @@
     shared vec3  gDerivBuffer3[8][8];
     shared vec4  gDerivBuffer4[8][8];
 
-    float dFdx( float var ) 
-    { 
-        gDerivBufferf[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        float delta = var - gDerivBufferf[groupThreadID.x ^ 1][groupThreadID.y]; 
-        delta = (groupThreadID.x & 1) == 1? -delta : delta;
-        return delta;
-    }
+    #extension GL_NV_compute_shader_derivatives : enable
+    
+    // float dFdx( float var ) 
+    // { 
+        // gDerivBufferf[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // float delta = var - gDerivBufferf[groupThreadID.x ^ 1][groupThreadID.y]; 
+        // delta = (groupThreadID.x & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    vec2 dFdx( vec2 var ) 
-    { 
-        gDerivBuffer2[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        vec2 delta = var - gDerivBuffer2[groupThreadID.x ^ 1][groupThreadID.y]; 
-        delta = (groupThreadID.x & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // vec2 dFdx( vec2 var ) 
+    // { 
+        // gDerivBuffer2[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // vec2 delta = var - gDerivBuffer2[groupThreadID.x ^ 1][groupThreadID.y]; 
+        // delta = (groupThreadID.x & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    vec3 dFdx( vec3 var ) 
-    { 
-        gDerivBuffer3[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        vec3 delta = var - gDerivBuffer3[groupThreadID.x ^ 1][groupThreadID.y]; 
-        delta = (groupThreadID.x & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // vec3 dFdx( vec3 var ) 
+    // { 
+        // gDerivBuffer3[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // vec3 delta = var - gDerivBuffer3[groupThreadID.x ^ 1][groupThreadID.y]; 
+        // delta = (groupThreadID.x & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    vec4 dFdx( vec4 var ) 
-    { 
-        gDerivBuffer4[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        vec4 delta = var - gDerivBuffer4[groupThreadID.x ^ 1][groupThreadID.y]; 
-        delta = (groupThreadID.x & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // vec4 dFdx( vec4 var ) 
+    // { 
+        // gDerivBuffer4[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // vec4 delta = var - gDerivBuffer4[groupThreadID.x ^ 1][groupThreadID.y]; 
+        // delta = (groupThreadID.x & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    float dFdy( float var ) 
-    { 
-        gDerivBufferf[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        float delta = var - gDerivBufferf[groupThreadID.x][groupThreadID.y ^ 1]; 
-        delta = (groupThreadID.y & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // float dFdy( float var ) 
+    // { 
+        // gDerivBufferf[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // float delta = var - gDerivBufferf[groupThreadID.x][groupThreadID.y ^ 1]; 
+        // delta = (groupThreadID.y & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    vec2 dFdy( vec2 var ) 
-    { 
-        gDerivBuffer2[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        vec2 delta = var - gDerivBuffer2[groupThreadID.x][groupThreadID.y ^ 1]; 
-        delta = (groupThreadID.y & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // vec2 dFdy( vec2 var ) 
+    // { 
+        // gDerivBuffer2[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // vec2 delta = var - gDerivBuffer2[groupThreadID.x][groupThreadID.y ^ 1]; 
+        // delta = (groupThreadID.y & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    vec3 dFdy( vec3 var ) 
-    { 
-        gDerivBuffer3[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        vec3 delta = var - gDerivBuffer3[groupThreadID.x][groupThreadID.y ^ 1]; 
-        delta = (groupThreadID.y & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // vec3 dFdy( vec3 var ) 
+    // { 
+        // gDerivBuffer3[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // vec3 delta = var - gDerivBuffer3[groupThreadID.x][groupThreadID.y ^ 1]; 
+        // delta = (groupThreadID.y & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
-    vec4 dFdy( vec4 var ) 
-    { 
-        gDerivBuffer4[groupThreadID.x][groupThreadID.y] = var; 
-        groupMemoryBarrier(); 
-        vec4 delta = var - gDerivBuffer4[groupThreadID.x][groupThreadID.y ^ 1]; 
-        delta = (groupThreadID.y & 1) == 1? -delta : delta;
-        return delta;
-    }
+    // vec4 dFdy( vec4 var ) 
+    // { 
+        // gDerivBuffer4[groupThreadID.x][groupThreadID.y] = var; 
+        // groupMemoryBarrier(); 
+        // vec4 delta = var - gDerivBuffer4[groupThreadID.x][groupThreadID.y ^ 1]; 
+        // delta = (groupThreadID.y & 1) == 1? -delta : delta;
+        // return delta;
+    // }
 
     #define dFdxFine        dFdx
     #define dFdyFine        dFdy
@@ -600,7 +602,7 @@
 
     #define SAMPLER2DARRAYARG( NAME )       in sampler2DArray NAME
     #define RWIMAGE2DARG( TYPE, NAME )      layout( TYPE ) image2D NAME
-    #define RWINTIMAGE2DARG( TYPE, NAME )   layout( TYPE ) iimage2D NAME
+    #define RWINTIMAGE2DARG( TYPE, NAME )   image2D NAME
     #define SAMPLER2DARRAYPARAM( NAME )     NAME
     #define SAMPLER2DARRAYPARAM_SRT( STRUCTURE, NAME ) SAMPLER_GETMAP( STRUCTURE, NAME ) 
     
@@ -790,7 +792,7 @@
 #if defined( D_PLATFORM_PC_COMPUTE )
 
     #define DECLARE_INPUT                  
-    #define DECLARE_END                     
+    #define DECLARE_INPUT_END                     
     
   #ifdef D_USE_UBO
 
@@ -810,6 +812,12 @@
 
     #define DEREF_UNIFORM( VAR )            lUniforms.VAR
 
+    #if defined(D_SPIRV)
+        #define DECLARE_UNIFORM( TYPE, NAME )   uniform NAME ## _BLK { TYPE NAME; };
+    #else
+        #define DECLARE_UNIFORM( TYPE, NAME )   uniform TYPE NAME;
+    #endif
+
   #endif
 
 
@@ -827,12 +835,12 @@
     #define WRITE_FRAGMENT_COLOUR4( VAL )  imageStore( gOutTexture4, ivec2( dispatchThreadID ).xy, VAL ) 
     #define WRITE_FRAGMENT_DEPTH( VAL )    imageStore( gOutTextureDepth, ivec2( dispatchThreadID ).xy, VAL ) 
 
-    #define FRAGMENT_COLOUR   imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture0 ), ivec2( dispatchThreadID ).xy ); 
-    #define FRAGMENT_COLOUR0  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture0 ), ivec2( dispatchThreadID ).xy ); 
-    #define FRAGMENT_COLOUR1  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture1 ), ivec2( dispatchThreadID ).xy ); 
-    #define FRAGMENT_COLOUR2  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture2 ), ivec2( dispatchThreadID ).xy ); 
-    #define FRAGMENT_COLOUR3  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture3 ), ivec2( dispatchThreadID ).xy ); 
-    #define FRAGMENT_COLOUR4  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture4 ), ivec2( dispatchThreadID ).xy ); 
+    #define FRAGMENT_COLOUR   imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture0 ), ivec2( dispatchThreadID ).xy )
+    #define FRAGMENT_COLOUR0  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture0 ), ivec2( dispatchThreadID ).xy )
+    #define FRAGMENT_COLOUR1  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture1 ), ivec2( dispatchThreadID ).xy )
+    #define FRAGMENT_COLOUR2  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture2 ), ivec2( dispatchThreadID ).xy )
+    #define FRAGMENT_COLOUR3  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture3 ), ivec2( dispatchThreadID ).xy )
+    #define FRAGMENT_COLOUR4  imageLoad( SAMPLER_GETMAP( mpCmpOutPerMesh, gOutTexture4 ), ivec2( dispatchThreadID ).xy )
 
     #define DEREF_PTR( VAR )                VAR
 
@@ -921,10 +929,9 @@
     #define INPUT(            TYPE, NAME, REG )   in          TYPE NAME;
     #define OUTPUT(           TYPE, NAME, REG )               TYPE NAME;
 
-  #else
+  #else // COMPUTE
 
-    #define INPUT(            TYPE, NAME, REG )   in          TYPE NAME;
-    #define OUTPUT(           TYPE, NAME, REG )   out         TYPE NAME;
+    #define INPUT(            TYPE, NAME, REG )               TYPE NAME;
 
   #endif
 
@@ -1240,7 +1247,7 @@
   #ifdef D_USE_UBO
     #define UNIFORM_DECL                        
   #else
-    #define UNIFORM_DECL                        uniform UniformBuffer lUniforms;
+    #define UNIFORM_DECL                        DECLARE_UNIFORM( UniformBuffer, lUniforms )
   #endif
 
     #define COMPUTE_MAIN_SRT( X, Y, Z )         layout (local_size_x = X, local_size_y = Y, local_size_z = Z) in; UNIFORM_DECL void main( void )

@@ -35,12 +35,10 @@
 //      Typedefs and Classes 
 
 DECLARE_INPUT
-    INPUT_SCREEN_POSITION
+    // INPUT_SCREEN_POSITION
 
-        INPUT( vec2, mTexCoordsVec2, TEXCOORD0 )
-
-DECLARE_END
-
+    INPUT( vec2, mTexCoordsVec2, TEXCOORD0 )
+DECLARE_INPUT_END
 
 #if defined ( D_UI )
 
@@ -93,7 +91,7 @@ BilinearAlphaCorrectionRead(
 
 #else
 
-        return texture2D( lTexture, lTexCoords );
+        return texture( lTexture, lTexCoords );
 
 #endif
     }
@@ -105,25 +103,30 @@ FRAGMENT_MAIN_COLOUR_SRT
 
     vec3 lFragmentColourVec3 = vec3( 0.0,0.0,0.0 );
 
-    float lfOverallMagnitude = lUniforms.mpCustomPerMesh->gUIDeformVec4.x;
+    float time = UNIFORM( mpPerFrame, gfTime );
+    float lfOverallMagnitude = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).x;
     if( lfOverallMagnitude > 0.0 )
     {
-        float lfFlickerAmount = lUniforms.mpCustomPerMesh->gUIDeformVec4.y;
+        float lfFlickerAmount = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).y;
         lDeformedCoordsVec2.x +=
-            ( ( lfFlickerAmount * 0.1 ) + 2.0 * ( max( sin( lUniforms.mpPerFrame->gfTime + sin( lUniforms.mpPerFrame->gfTime * 113.0 ) ), 0.98 ) - 0.98 ) ) *
+            ( ( lfFlickerAmount * 0.1 ) + 2.0 * ( max( sin( time + sin( time * 113.0 ) ), 0.98 ) - 0.98 ) ) *
             0.05 *
-            sin( 113.0 * lUniforms.mpPerFrame->gfTime * sin( lDeformedCoordsVec2.y * 827.0 ) ) *
+            sin( 113.0 * time * sin( lDeformedCoordsVec2.y * 827.0 ) ) *
             lfOverallMagnitude;
     }
 
-    vec4 lUIColourVec4         = BilinearAlphaCorrectionRead( SAMPLER2DPARAM_SRT( lUniforms.mpCustomPerMesh, gUIMap ), lDeformedCoordsVec2 );
+    vec4 lUIColourVec4         = BilinearAlphaCorrectionRead( SAMPLER2DPARAM_SRT( DEREF_UNIFORM( mpCustomPerMesh ), gUIMap ), lDeformedCoordsVec2 );
 
     if( lDeformedCoordsVec2.y > 1.0 || lDeformedCoordsVec2.y < 0.0 )
     {
         lUIColourVec4 = vec4( 0.0, 0.0, 0.0, 1.0 );
     }
 
-    FRAGMENT_COLOUR = lUIColourVec4;
+    #ifdef D_COMPUTE
+        WRITE_FRAGMENT_COLOUR( lUIColourVec4 );
+    #else
+        FRAGMENT_COLOUR = lUIColourVec4;
+    #endif
 }
 
 #else
@@ -133,13 +136,13 @@ FRAGMENT_MAIN_COLOUR_SRT
 
 vec4 GetDropletColour(
     SAMPLER2DARG( lBufferMap ),
-    CustomPerMeshUniforms lUniforms, 
+    CustomPerMeshUniforms lCustomPerMesh, 
     vec2 texcoord,
     vec2 lDeformedTexcoordVec2 )
 {
     vec3 final = texture2DLod(lBufferMap, texcoord, 0.0).rgb;
-    float timer         = lUniforms.gWashParamsVec4.x;
-    float resettimer    = lUniforms.gWashParamsVec4.y;
+    float timer         = lCustomPerMesh.gWashParamsVec4.x;
+    float resettimer    = lCustomPerMesh.gWashParamsVec4.y;
     float dropfade = clamp(resettimer*10.0,0.0,1.0);
 
     float grainsize = 25.0;
@@ -317,7 +320,7 @@ FRAGMENT_MAIN_COLOUR_SRT
     vec2 lScreenspacePositionVec2 = SCREENSPACE_AS_RENDERTARGET_UVS( lCoordsVec2 );
 
     // Get the scene colour
-    vec3 lFragmentColourVec3 = GetDropletColour( SAMPLER2DPARAM_SRT( lUniforms.mpCustomPerMesh,gBufferMap ),  DEREF_PTR( lUniforms.mpCustomPerMesh ), lCoordsVec2, lScreenspacePositionVec2 ).xyz;
+    vec3 lFragmentColourVec3 = GetDropletColour( SAMPLER2DPARAM_SRT( DEREF_UNIFORM( mpCustomPerMesh ), gBufferMap ),  DEREF_UNIFORM( mpCustomPerMesh ), lCoordsVec2, lScreenspacePositionVec2 ).xyz;
 
     vec2 lDeformedCoordsVec2 = GetBulgeDeform( lCoordsVec2 );
 #ifdef D_PLATFORM_OPENGL
@@ -330,33 +333,34 @@ FRAGMENT_MAIN_COLOUR_SRT
 #endif
 
 
-    float lfOverallMagnitude     = lUniforms.mpCustomPerMesh->gUIDeformVec4.x;  
-    float lfFlickerAmount        = lUniforms.mpCustomPerMesh->gUIDeformVec4.y;
-    float lfColourSeperateAmount = lUniforms.mpCustomPerMesh->gUIDeformVec4.z;
-    float lfIsUIEnabled          = lUniforms.mpCustomPerMesh->gUIDeformVec4.w;
-    bool  lbIsUIEnabled          = lUniforms.mpCustomPerMesh->gUIDeformVec4.w > -0.5 ? true : false;
+    float lfOverallMagnitude     = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).x;  
+    float lfFlickerAmount        = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).y;
+    float lfColourSeperateAmount = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).z;
+    float lfIsUIEnabled          = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).w;
+    bool  lbIsUIEnabled          = UNIFORM( mpCustomPerMesh, gUIDeformVec4 ).w > -0.5 ? true : false;
 
-    float lfVignetteCutoffLow    = lUniforms.mpCustomPerMesh->gVignetteVec4.x;
-    float lfVignetteCutoffHigh   = lUniforms.mpCustomPerMesh->gVignetteVec4.y;
-    float lfVignetteAdjust       = lUniforms.mpCustomPerMesh->gVignetteVec4.z;
-    float lfBinocularsOn         = lUniforms.mpCustomPerMesh->gVignetteVec4.w;
+    float lfVignetteCutoffLow    = UNIFORM( mpCustomPerMesh, gVignetteVec4 ).x;
+    float lfVignetteCutoffHigh   = UNIFORM( mpCustomPerMesh, gVignetteVec4 ).y;
+    float lfVignetteAdjust       = UNIFORM( mpCustomPerMesh, gVignetteVec4 ).z;
+    float lfBinocularsOn         = UNIFORM( mpCustomPerMesh, gVignetteVec4 ).w;
 
-    float lfRedFlash             = lUniforms.mpCustomPerMesh->gCriticalHitPointsVec4.x;
-    float lfFullScreenDesat      = lUniforms.mpCustomPerMesh->gCriticalHitPointsVec4.y;
-    float lfWhiteFlash           = lUniforms.mpCustomPerMesh->gCriticalHitPointsVec4.z;
+    float lfRedFlash             = UNIFORM( mpCustomPerMesh, gCriticalHitPointsVec4 ).x;
+    float lfFullScreenDesat      = UNIFORM( mpCustomPerMesh, gCriticalHitPointsVec4 ).y;
+    float lfWhiteFlash           = UNIFORM( mpCustomPerMesh, gCriticalHitPointsVec4 ).z;
 
-    float lfRedVignetteStrength  = lUniforms.mpCustomPerMesh->gUILowHealthVignetteVec4.x;
-    float lfLowHealthPulseRate   = lUniforms.mpCustomPerMesh->gUILowHealthVignetteVec4.y;
-    float lfShieldDownScanline   = lUniforms.mpCustomPerMesh->gUILowHealthVignetteVec4.z;
-    float lfEffectProgression    = lUniforms.mpCustomPerMesh->gUILowHealthVignetteVec4.w;
+    float lfRedVignetteStrength  = UNIFORM( mpCustomPerMesh, gUILowHealthVignetteVec4 ).x;
+    float lfLowHealthPulseRate   = UNIFORM( mpCustomPerMesh, gUILowHealthVignetteVec4 ).y;
+    float lfShieldDownScanline   = UNIFORM( mpCustomPerMesh, gUILowHealthVignetteVec4 ).z;
+    float lfEffectProgression    = UNIFORM( mpCustomPerMesh, gUILowHealthVignetteVec4 ).w;
   
+    float time = UNIFORM( mpPerFrame, gfTime );
+
     if (lfOverallMagnitude > 0.0)
     {
-
         lDeformedCoordsVec2.x += 
-            ((lfFlickerAmount * 0.1) + 2.0 * (max( sin( lUniforms.mpPerFrame->gfTime + sin( lUniforms.mpPerFrame->gfTime * 113.0 ) ), 0.98) - 0.98)) * 
+            ((lfFlickerAmount * 0.1) + 2.0 * (max( sin( time + sin( time * 113.0 ) ), 0.98) - 0.98)) * 
             0.05 *
-            sin( 113.0 * lUniforms.mpPerFrame->gfTime * sin( lDeformedCoordsVec2.y * 827.0 ) ) * 
+            sin( 113.0 * time * sin( lDeformedCoordsVec2.y * 827.0 ) ) * 
             lfOverallMagnitude;
     }
 
@@ -366,7 +370,7 @@ FRAGMENT_MAIN_COLOUR_SRT
     {
         float lfColourSeparationStrength  = saturate( saturate( ( lDeformedCoordsVec2.y ) * 4.5 ) );
 
-        vec3 lSeparateColourVec3 = GetColourSeparation( SAMPLER2DPARAM_SRT( lUniforms.mpCustomPerMesh, gBufferMap ), 3.0 / 1280.0, lCoordsVec2 );
+        vec3 lSeparateColourVec3 = GetColourSeparation( SAMPLER2DPARAM_SRT( DEREF_UNIFORM( mpCustomPerMesh ), gBufferMap ), 3.0 / 1280.0, lCoordsVec2 );
 
         lFragmentColourVec3      = mix( lSeparateColourVec3, lFragmentColourVec3, lfColourSeparationStrength );
     }
@@ -378,7 +382,7 @@ FRAGMENT_MAIN_COLOUR_SRT
     {
         vec3 lEffectColourVec3   = lFragmentColourVec3;
         vec3 lVignetteColourVec3 = GetVignette( lScreenspacePositionVec2 );
-        vec3 lScanlineVec3       = GetScanlines( lUniforms.mpPerFrame->gfTime, lDeformedCoordsVec2 );
+        vec3 lScanlineVec3       = GetScanlines( time, lDeformedCoordsVec2 );
 
         lEffectColourVec3       *= lVignetteColourVec3 * lScanlineVec3;
         lFragmentColourVec3      = mix( lEffectColourVec3, lFragmentColourVec3, lfEffectsColourMix );
@@ -407,13 +411,13 @@ FRAGMENT_MAIN_COLOUR_SRT
 
     if (lfHazardProgression < 1.0)
     {
-        vec3 lFullScreenNormalVec3 = DecodeNormalMap( texture2D( SAMPLER_GETMAP( lUniforms.mpCustomPerMesh, gUIFullscreenNormal ), lTextureCoordinatesVec2 ) );
-        vec4 lUIRefraction         = texture2D( SAMPLER_GETMAP( lUniforms.mpCustomPerMesh, gUIFullScreenRefraction ), lTextureCoordinatesVec2 );
+        vec3 lFullScreenNormalVec3 = DecodeNormalMap( texture( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMesh ), gUIFullscreenNormal ), lTextureCoordinatesVec2 ) );
+        vec4 lUIRefraction         = texture( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMesh ), gUIFullScreenRefraction ), lTextureCoordinatesVec2 );
 
         float lfDistortionSeperateAmount = 64.0 / 1280.0;
         vec2 lDistortedTextureCoords = lTextureCoordinatesVec2.xy + lFullScreenNormalVec3.xy * lfDistortionSeperateAmount;
         vec2 lDistortedBufferCoords  = lCoordsVec2.xy + lFullScreenNormalVec3.xy * lfDistortionSeperateAmount;
-        vec4 lUIFullscreenVec4       = texture2DLod( SAMPLER_GETMAP( lUniforms.mpCustomPerMesh,gUIFullscreenEffect ), lDistortedTextureCoords, 0.0);
+        vec4 lUIFullscreenVec4       = texture2DLod( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMesh ),gUIFullscreenEffect ), lDistortedTextureCoords, 0.0);
 
         float lfHazardVignette     = 1.0 - smoothstep(0.3, 1.0, dFullScreen * 2.0);
         float lfAlphaMask          = mix( 1.0 - lfHazardVignette, 1.0, lfExtraEffect );
@@ -428,14 +432,14 @@ FRAGMENT_MAIN_COLOUR_SRT
         if (lfHazardIntensity > 0.0)
         {
             // Lighting
-            vec3 lCameraRightVec3 = MAT4_GET_COLUMN(lUniforms.mpPerFrame->gCameraMat4, 0);
-            vec3 lCameraUpVec3    = MAT4_GET_COLUMN(lUniforms.mpPerFrame->gCameraMat4, 1);
-            vec3 lCameraAtVec3    = MAT4_GET_COLUMN(lUniforms.mpPerFrame->gCameraMat4, 2);           
+            vec3 lCameraRightVec3 = MAT4_GET_COLUMN(UNIFORM( mpPerFrame, gCameraMat4 ), 0);
+            vec3 lCameraUpVec3    = MAT4_GET_COLUMN(UNIFORM( mpPerFrame, gCameraMat4 ), 1);
+            vec3 lCameraAtVec3    = MAT4_GET_COLUMN(UNIFORM( mpPerFrame, gCameraMat4 ), 2);           
 
-            vec3 lLightColLinear = GammaCorrectOutput( lUniforms.mpCommonPerMesh->gLightColourVec4.rgb );
+            vec3 lLightColLinear = GammaCorrectOutput( UNIFORM( mpCommonPerMesh, gLightColourVec4 ).rgb );
             vec3 lLightCol = mix( lLightColLinear , vec3(1.0, 1.0, 1.0), 0.5);
 
-            vec3 lDistortedCol = texture2DLod(  SAMPLER_GETMAP( lUniforms.mpCustomPerMesh, gBufferMap ), lDistortedBufferCoords, 0.0).rgb;
+            vec3 lDistortedCol = texture2DLod(  SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMesh ), gBufferMap ), lDistortedBufferCoords, 0.0).rgb;
             lDistortedCol = mix( lDistortedCol, vec3( 0.0, 0.0, 0.0 ),  (1.0 - lfHazardVignette) * lfExtraEffect );
 
             // We want always some kind of specular value, a fixed light direction and a 
@@ -452,11 +456,15 @@ FRAGMENT_MAIN_COLOUR_SRT
     }
 
     // Binoculars
-    if( lfBinocularsOn > 0.0 )
+    vec2 lBinocularCoords = lTextureCoordinatesVec2;
+    if( lfBinocularsOn < 0.0 )
     {
-        vec2 lBinocularCoords = lTextureCoordinatesVec2;
-
-        vec4 lUIZoomVec4        = texture2DLod( SAMPLER_GETMAP( lUniforms.mpCustomPerMesh, gUIZoomEffect ), lBinocularCoords, 0.0 );
+        vec4 lUIZoomVec4        = texture2DLod( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMesh ), gUISurveyingEffect ), lBinocularCoords, 0.0 );
+        lFragmentColourVec3.rgb = mix( lFragmentColourVec3.rgb, lUIZoomVec4.rgb, lUIZoomVec4.a * lfBinocularsOn );
+    }
+    else if ( lfBinocularsOn > 0.0 )
+    {
+        vec4 lUIZoomVec4        = texture2DLod( SAMPLER_GETMAP( DEREF_UNIFORM( mpCustomPerMesh ), gUIZoomEffect ), lBinocularCoords, 0.0 );
         lFragmentColourVec3.rgb = mix( lFragmentColourVec3.rgb, lUIZoomVec4.rgb, lUIZoomVec4.a * lfBinocularsOn );
     }
 
@@ -490,17 +498,22 @@ FRAGMENT_MAIN_COLOUR_SRT
 
     // Red vignette
     float lfCriticHealthVignette = 1.0 - smoothstep(0.05, 1.0, dFullScreen);
-    float lfRedVignettePulseAmount = max( 0.0, sin( lUniforms.mpPerFrame->gfTime * lfLowHealthPulseRate ) );
+    float lfRedVignettePulseAmount = max( 0.0, sin( time * lfLowHealthPulseRate ) );
     lFragmentColourVec3.rgb += vec3( lfVignetteCutoffHigh * 0.7 + 0.3 * lfRedVignettePulseAmount, 0.0, 0.0 ) * lfRedVignetteStrength * (1.0 - lfCriticHealthVignette);
 
     // White flash
     //lFragmentColourVec3.rgb = mix(lFragmentColourVec3.rgb, vec3(0.0, 0.0, 0.0), lfWhiteFlash);
 
     // Flash from front end. This is independent from HUD/hazard flashes.
-    lFragmentColourVec3.rgb = mix( lFragmentColourVec3.rgb,  lUniforms.mpCustomPerMesh->gFrontendFlashColourVec4.xyz,  lUniforms.mpCustomPerMesh->gFrontendFlashColourVec4.w );
+    vec4 lFrontendFlashColour = UNIFORM( mpCustomPerMesh, gFrontendFlashColourVec4 );
+    lFragmentColourVec3.rgb = mix( lFragmentColourVec3.rgb,  lFrontendFlashColour.xyz, lFrontendFlashColour.w );
     
-    FRAGMENT_COLOUR = vec4( lFragmentColourVec3, 1.0 );    
-    //FRAGMENT_COLOUR = vec4( 1.0, 0.0, 0.0, 0.5 );    
+    #ifdef D_COMPUTE
+        WRITE_FRAGMENT_COLOUR( vec4( lFragmentColourVec3, 1.0 ) );
+    #else
+        FRAGMENT_COLOUR = vec4( lFragmentColourVec3, 1.0 );
+        // FRAGMENT_COLOUR = vec4( 1.0, 0.0, 0.0, 0.5 );    
+    #endif
     
 }
 

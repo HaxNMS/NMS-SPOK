@@ -156,12 +156,12 @@ GetTex2DBilinear(
     vec2 lCoord1Vec2 = lTexCoordsVec2 + 0.5 / lTexSizeVec2;
     vec2 lWeightVec2 = fract( lCoord0Vec2 * lTexSizeVec2 );
     
-    vec4 lBottomVec4 = mix( texture2D( lTextureMap, lCoord0Vec2 ),
-                    texture2D( lTextureMap, vec2( lCoord1Vec2.x, lCoord0Vec2.y ) ),
+    vec4 lBottomVec4 = mix( texture( lTextureMap, lCoord0Vec2 ),
+                    texture( lTextureMap, vec2( lCoord1Vec2.x, lCoord0Vec2.y ) ),
                     lWeightVec2.x );
 
-    vec4 lTopVec4 = mix( texture2D( lTextureMap, vec2( lCoord0Vec2.x, lCoord1Vec2.y ) ),
-                    texture2D( lTextureMap, lCoord1Vec2 ),
+    vec4 lTopVec4 = mix( texture( lTextureMap, vec2( lCoord0Vec2.x, lCoord1Vec2.y ) ),
+                    texture( lTextureMap, lCoord1Vec2 ),
                     lWeightVec2.x );
     
     return mix( lBottomVec4, lTopVec4, lWeightVec2.y );
@@ -356,7 +356,7 @@ Texture2DNoFiltering(
     SAMPLER2DARG( tex ),
     in vec2 texcoord )
 {
-    return texture2D( tex, texcoord );
+    return texture( tex, texcoord );
 }
 
 #endif

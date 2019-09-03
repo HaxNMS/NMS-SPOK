@@ -29,6 +29,7 @@
 ///     Stuff that is only used for these types of meshes.
 //-----------------------------------------------------------------------------
 
+#ifndef D_VERTEX
 struct CustomPerMeshUniforms
 {
     vec4 gDoFParamsVec4;
@@ -38,6 +39,7 @@ struct CustomPerMeshUniforms
     vec4 gBlurParamsVec4;
     vec4 gColourLUTParamsVec4;
     vec4 gColourLUTStrengthsVec4;
+    vec4 gSharpenStrength;
 #if defined ( D_IBL )
     vec4 gIBLParamsVec4;
 #else
@@ -56,42 +58,54 @@ struct CustomPerMeshUniforms
     vec4 gLightShaftColourBottomVec4;
     vec4 gLightShaftColourTopVec4;
 #endif
+    vec4 gHDRParams2Vec4;
 
 BEGIN_SAMPLERBLOCK
 
+#ifdef D_LUT
+    SAMPLER3D(gColourLUTBase);
+    SAMPLER3D(gColourLUTFar);
+    SAMPLER3D(gColourLUTStorm);
+    SAMPLER3D(gColourLUTEffect);
+#endif
+
+#if defined ( D_SCREENEFFECT )
     SAMPLER2D( gBufferMap );
-#if defined ( D_UI ) || defined ( D_SCREENEFFECT )
-    // UI shader stuff
-    SAMPLER2D( gUIMap );
-    SAMPLER2D( gUIMask );
-    SAMPLER2D( gUIFullscreenEffect );
-    SAMPLER2D( gUIFullscreenNormal );
-    SAMPLER2D( gUIZoomEffect );
-    SAMPLER2D( gUINoiseEffect );
-    SAMPLER2D( gUIFullScreenRefraction );
-#else
     SAMPLER2D( gBuffer1Map );
     SAMPLER2D( gBuffer2Map );
+    
+    // UI shader stuff
+    SAMPLER2D( gUIFullscreenNormal );
+    SAMPLER2D( gUIFullScreenRefraction );
+    SAMPLER2D( gUIFullscreenEffect );
+    SAMPLER2D( gUISurveyingEffect );
+    SAMPLER2D( gUIZoomEffect );
+
     SAMPLER2D( gBuffer3Map );
     SAMPLER2D( gBuffer4Map );
-    SAMPLER2D( gBuffer5Map );
+#elif defined ( D_UI )
+    SAMPLER2D( gUIMap );
+    // SAMPLER2D( gUIMask );
+    // SAMPLER2D( gUINoiseEffect );
+#endif
+
+    // SAMPLER2D( gBuffer1Map );
+    // SAMPLER2D( gBuffer2Map );
+    // SAMPLER2D( gBuffer3Map );
+    // SAMPLER2D( gBuffer4Map );
+    // SAMPLER2D( gBuffer5Map );
 
 #if defined ( D_IBL )
     SAMPLER2D(gDualPMapFront);
     SAMPLER2D(gDualPMapBack);
 #else
-    SAMPLER3D(gColourLUTBase);
-    SAMPLER3D(gColourLUTFar);
-    SAMPLER3D(gColourLUTStorm);
-    SAMPLER3D(gColourLUTEffect);
-    SAMPLER2D(gBlurMask);
+    // SAMPLER2D(gBlurMask);
 #endif
 
 #if defined( D_LENSFLARE )
     SAMPLER2D(gLensDirt);
 #endif
 
-#endif
 #if defined( D_DEBUG_QUAD )
     SAMPLER2D( gBuffer6Map );
     SAMPLER2D( gBuffer7Map );
@@ -105,6 +119,8 @@ BEGIN_SAMPLERBLOCK
 #endif
 
 END_SAMPLERBLOCK
+};
+#endif
 
 #ifndef D_COMPUTE
 
@@ -156,11 +172,11 @@ RW_Texture2D<float>  gOutTextureDepth : register(u5);
 
 #endif
 
+#ifndef D_VERTEX
 //
 // This is the SRT buffer that everything gets uploaded to (on PS4). PC just functions as normal.
 //
-struct UniformBuffer
-{
+DECLARE_UNIFORMS
      DECLARE_PTR( PerFrameUniforms,             mpPerFrame )       /*: PER_MESH*/
      DECLARE_PTR( CustomPerMeshUniforms,        mpCustomPerMesh )       /*: PER_MESH*/
      DECLARE_PTR( CommonPerMeshUniforms,        mpCommonPerMesh )       /*: PER_MESH*/
@@ -168,4 +184,5 @@ struct UniformBuffer
 #if defined D_PLATFORM_ORBIS && defined D_COMPUTE
      DECLARE_PTR( ComputeOutputUniforms,        mpCmpOutPerMesh )   /* hack - marked 'per mesh' so it'll be alloced in cmd buf */
 #endif
-};
+DECLARE_UNIFORMS_END
+#endif
