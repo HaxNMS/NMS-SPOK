@@ -26,19 +26,19 @@ struct CustomPerMaterialUniforms
     vec4 gSpaceNebulaParamsVec4;
     vec4 gSpaceSkyColour1Vec4;
 
-#if defined( D_FRAGMENT )
     BEGIN_SAMPLERBLOCK
-    #if defined( D_PSTREAM_STARS ) && !defined( D_PSTREAM_SOLARSYSTEM )
-        SAMPLER2D( gDistortMap );
+#if defined( D_FRAGMENT )
+    #if defined( D_CARDS )
+        layout( binding= 2 ) SAMPLER2D( gPlasmaMap  );
     #elif defined( D_PSTREAM_FIELD )
-        SAMPLER2D( gFieldMap   );
+        layout( binding= 1 ) SAMPLER2D( gFieldMap   );
     #elif defined( D_PSTREAM_SOLARSYSTEM )
-        SAMPLER2D( gNoiseMap   );
-    #elif defined( D_CARDS )
-        SAMPLER2D( gPlasmaMap  );
+        layout( binding=13 ) SAMPLER2D( gNoiseMap   );
+    #elif defined( D_PSTREAM_STARS )
+        layout( binding= 0 ) SAMPLER2D( gDistortMap );
     #endif
-    END_SAMPLERBLOCK
 #endif
+    END_SAMPLERBLOCK
 }; // CustomPerMaterialUniforms
 
 struct CustomPerMeshUniforms

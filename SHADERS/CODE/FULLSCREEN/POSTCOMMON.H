@@ -63,28 +63,28 @@ struct CustomPerMeshUniforms
 BEGIN_SAMPLERBLOCK
 
 #ifdef D_LUT
-    SAMPLER3D(gColourLUTBase);
-    SAMPLER3D(gColourLUTFar);
-    SAMPLER3D(gColourLUTStorm);
-    SAMPLER3D(gColourLUTEffect);
+    layout( binding=12 ) SAMPLER3D(gColourLUTBase);
+    layout( binding=13 ) SAMPLER3D(gColourLUTFar);
+    layout( binding=14 ) SAMPLER3D(gColourLUTStorm);
+    layout( binding=15 ) SAMPLER3D(gColourLUTEffect);
 #endif
 
 #if defined ( D_SCREENEFFECT )
-    SAMPLER2D( gBufferMap );
-    SAMPLER2D( gBuffer1Map );
-    SAMPLER2D( gBuffer2Map );
+    layout( binding= 0 ) SAMPLER2D( gBufferMap );
+    layout( binding= 1 ) SAMPLER2D( gBuffer1Map );
+    layout( binding= 2 ) SAMPLER2D( gBuffer2Map );
     
     // UI shader stuff
-    SAMPLER2D( gUIFullscreenNormal );
-    SAMPLER2D( gUIFullScreenRefraction );
-    SAMPLER2D( gUIFullscreenEffect );
-    SAMPLER2D( gUISurveyingEffect );
-    SAMPLER2D( gUIZoomEffect );
+    layout( binding= 7 ) SAMPLER2D( gUIFullscreenNormal );
+    layout( binding= 9 ) SAMPLER2D( gUIFullScreenRefraction );
+    layout( binding= 6 ) SAMPLER2D( gUIFullscreenEffect );
+    layout( binding=10 ) SAMPLER2D( gUISurveyingEffect );
+    layout( binding= 8 ) SAMPLER2D( gUIZoomEffect );
 
-    SAMPLER2D( gBuffer3Map );
-    SAMPLER2D( gBuffer4Map );
+    layout( binding= 3 ) SAMPLER2D( gBuffer3Map );
+    layout( binding= 4 ) SAMPLER2D( gBuffer4Map );
 #elif defined ( D_UI )
-    SAMPLER2D( gUIMap );
+    layout( binding= 5 ) SAMPLER2D( gUIMap );
     // SAMPLER2D( gUIMask );
     // SAMPLER2D( gUINoiseEffect );
 #endif
@@ -99,7 +99,7 @@ BEGIN_SAMPLERBLOCK
     SAMPLER2D(gDualPMapFront);
     SAMPLER2D(gDualPMapBack);
 #else
-    // SAMPLER2D(gBlurMask);
+    layout( binding=11 ) SAMPLER2D(gBlurMask);
 #endif
 
 #if defined( D_LENSFLARE )
