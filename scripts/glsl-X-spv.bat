@@ -45,12 +45,14 @@ goto :Main
     set "CONTEXT=%~5"   && set "CONTEXT"   1>nul 2>&1 || goto :Help
     set "FLAGSMASK=%~6" && set "FLAGSMASK" 1>nul 2>&1 || goto :Help
 
-    set SRC_DIR=%~dp1
-    set SRC_DIR=%SRC_DIR:~0,-1%
+    call :GetRelativePath SRC_DIR "%~dp1\."
+    call :GetRelativePath INC_DIR "%~dp0\..\SHADERS\CODE"
 
     set OPTIONS=-std=450 -fauto-bind-uniforms -fauto-map-locations
     set INCLUDES=-I "%SRC_DIR%"
-    set INCLUDES=%INCLUDES% -I "%~dp0..\SHADERS\CODE"
+    if not "%SRC_DIR%"=="%INC_DIR%" (
+        set INCLUDES=%INCLUDES% -I "%INC_DIR%"
+    )
     set DEFINES=-DD_PLATFORM_PC -DD_SPIRV
 
     set STAGE_VERT=-DD_VERTEX   -fshader-stage=vert
@@ -89,6 +91,15 @@ goto :Main
         set OSTAGE=%%J
     )
     set STAGE=%~1
+    exit /b
+
+:GetAbsolutePath
+    for /f "delims=" %%I in (%2) do set %1=%%~fI
+    exit /b
+
+:GetRelativePath
+    call :GetAbsolutePath %1 %2
+    set %~1=!%~1:%CD%\=!
     exit /b
 
 :Error
